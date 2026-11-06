@@ -1,0 +1,16 @@
+{
+  "symbol": "SAIL",
+  "exchange": "NSE",
+  "series": "EQ",
+  "price_band_pct": 20,
+  "asm_stage": null,
+  "gsm_stage": null,
+  "esm": false,
+  "trade_for_trade": false,
+  "fo_ban": true,
+  "lot_size": null,
+  "near_circuit": false,
+  "session_date": "2026-11-05",
+  "source": "fixture:nse-fo-ban-list",
+  "freshness": "fixture"
+}

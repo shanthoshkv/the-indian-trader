@@ -1,0 +1,12 @@
+[project]
+name = "indian-market"
+version = "0.1.0"
+description = "NSE and BSE evidence tools for the Indian trader skill pack"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

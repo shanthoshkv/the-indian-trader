@@ -1,0 +1,32 @@
+{
+  "source": "NSE circular NSE/CMTR/71775 dated 12 December 2025, plus the BSE 2026 holiday list. Muhurat hours from NSE/CMTR/76941 dated 19 October 2026.",
+  "last_reviewed": "2026-11-06",
+  "closed": [
+    {"date": "2026-01-15", "name": "Municipal Corporation Election — Maharashtra", "exchanges": ["BSE"], "source": "BSE 2026 holiday list. The NSE circular extract does not list this date; treat NSE as open unless a member circular says otherwise."},
+    {"date": "2026-01-26", "name": "Republic Day", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-03-03", "name": "Holi", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-03-26", "name": "Shri Ram Navami", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-03-31", "name": "Shri Mahavir Jayanti", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-04-03", "name": "Good Friday", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-04-14", "name": "Dr. Baba Saheb Ambedkar Jayanti", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-05-01", "name": "Maharashtra Day", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-05-28", "name": "Bakri Id", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-06-26", "name": "Muharram", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-09-14", "name": "Ganesh Chaturthi", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-10-02", "name": "Mahatma Gandhi Jayanti", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-10-20", "name": "Dussehra", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-11-10", "name": "Diwali-Balipratipada", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-11-24", "name": "Prakash Gurpurb Sri Guru Nanak Dev", "exchanges": ["NSE", "BSE"]},
+    {"date": "2026-12-25", "name": "Christmas", "exchanges": ["NSE", "BSE"]}
+  ],
+  "muhurat": [
+    {
+      "date": "2026-11-08",
+      "name": "Diwali Laxmi Pujan",
+      "preopen_start": "14:05",
+      "continuous_start": "14:20",
+      "continuous_end": "15:30",
+      "source": "NSE/CMTR/76941. Equity window 14:20–15:30 IST. F&O on NSE runs until 15:40 the same day."
+    }
+  ]
+}

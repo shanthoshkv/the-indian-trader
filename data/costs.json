@@ -1,0 +1,71 @@
+{
+  "last_reviewed": "2026-11-06",
+  "review_horizon_days": 180,
+  "note": "Confirm every rate against the Finance Act and the current NSE and BSE charge circular before a position-size calculation. This file is a reviewed snapshot, not a broker contract note.",
+  "items": [
+    {
+      "id": "stt_equity_delivery_buy",
+      "label": "STT equity delivery, buy",
+      "rate": 0.001,
+      "side": "buy",
+      "effective_from": "2024-10-01",
+      "source": "Delivery STT is charged on both sides. Re-verify the 0.1% rate in the Finance Act at each review."
+    },
+    {
+      "id": "stt_equity_delivery_sell",
+      "label": "STT equity delivery, sell",
+      "rate": 0.001,
+      "side": "sell",
+      "effective_from": "2024-10-01",
+      "source": "Delivery STT is charged on both sides. Re-verify the 0.1% rate in the Finance Act at each review."
+    },
+    {
+      "id": "stt_equity_intraday_sell",
+      "label": "STT equity intraday, sell side",
+      "rate": 0.00025,
+      "side": "sell",
+      "effective_from": "2024-10-01",
+      "source": "Intraday equity STT is charged on the sell side. Re-verify the rate at each review."
+    },
+    {
+      "id": "stt_fut_sell",
+      "label": "STT equity and index futures, sell side",
+      "rate": 0.0005,
+      "side": "sell",
+      "effective_from": "2026-04-01",
+      "source": "Reported Budget change from 0.02% to 0.05% effective 1 April 2026. Confirm the Finance Act text."
+    },
+    {
+      "id": "stt_opt_premium_sell",
+      "label": "STT options, sell side on premium",
+      "rate": 0.0015,
+      "side": "sell",
+      "effective_from": "2026-04-01",
+      "source": "Reported Budget change from 0.1% to 0.15% of premium effective 1 April 2026. Confirm the Finance Act text."
+    },
+    {
+      "id": "stt_opt_exercise",
+      "label": "STT options, exercise",
+      "rate": 0.0015,
+      "side": "exercise",
+      "effective_from": "2026-04-01",
+      "source": "Reported Budget change from 0.125% to 0.15% effective 1 April 2026. Confirm the Finance Act text."
+    },
+    {
+      "id": "gst_on_brokerage_and_charges",
+      "label": "GST on brokerage and exchange transaction charges",
+      "rate": 0.18,
+      "side": "fees",
+      "effective_from": "2017-07-01",
+      "source": "GST at 18% on brokerage and on exchange transaction charges. GST is not charged on STT."
+    },
+    {
+      "id": "stamp_duty",
+      "label": "Stamp duty",
+      "rate": null,
+      "side": "buy",
+      "effective_from": "2020-07-01",
+      "source": "Stamp duty is set by the state and charged on the buy side. Do not apply one national rate."
+    }
+  ]
+}

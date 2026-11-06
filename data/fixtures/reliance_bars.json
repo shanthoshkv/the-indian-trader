@@ -1,0 +1,32 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "source": "fixture:nse-cm-bhavcopy",
+  "freshness": "fixture",
+  "as_of_ist": "2026-11-05T18:10:00+05:30",
+  "bars": [
+    {"date": "2026-10-27", "close": 100.0, "volume": 1000, "delivery_qty": 400},
+    {"date": "2026-10-28", "close": 101.0, "volume": 1000, "delivery_qty": 420},
+    {"date": "2026-10-29", "close": 102.0, "volume": 1100, "delivery_qty": 500},
+    {"date": "2026-10-30", "close": 103.0, "volume": 900, "delivery_qty": 300},
+    {"date": "2026-11-02", "close": 104.0, "volume": 1200, "delivery_qty": 600},
+    {"date": "2026-11-03", "close": 106.0, "volume": 1300, "delivery_qty": 700},
+    {"date": "2026-11-04", "close": 105.0, "volume": 1000, "delivery_qty": 450},
+    {"date": "2026-11-05", "close": 108.0, "volume": 1500, "delivery_qty": 750}
+  ],
+  "benchmark": {
+    "symbol": "NIFTY",
+    "bars": [
+      {"date": "2026-10-27", "close": 1000},
+      {"date": "2026-10-28", "close": 1000},
+      {"date": "2026-10-29", "close": 1000},
+      {"date": "2026-10-30", "close": 1000},
+      {"date": "2026-11-02", "close": 1000},
+      {"date": "2026-11-03", "close": 1000},
+      {"date": "2026-11-04", "close": 1000},
+      {"date": "2026-11-05", "close": 1000}
+    ]
+  },
+  "futures": {"close": 108.5, "prev_close": 105.2, "oi": 1200, "prev_oi": 1000}
+}
