@@ -1,6 +1,7 @@
 {
   "source": "NSE circular NSE/CMTR/71775 dated 12 December 2025, plus the BSE 2026 holiday list. Muhurat hours from NSE/CMTR/76941 dated 19 October 2026.",
   "last_reviewed": "2026-11-06",
+  "review_horizon_days": 180,
   "closed": [
     {"date": "2026-01-15", "name": "Municipal Corporation Election — Maharashtra", "exchanges": ["BSE"], "source": "BSE 2026 holiday list. The NSE circular extract does not list this date; treat NSE as open unless a member circular says otherwise."},
     {"date": "2026-01-26", "name": "Republic Day", "exchanges": ["NSE", "BSE"]},

@@ -24,7 +24,7 @@ Not investment advice. This is not SEBI-registered research. This is not an orde
 - position-size, only if a plan is `ready`
 - risk-gate
 
-2. The desk label `ic-note` is not a CLI subcommand. Size and the gate, when they exist, come from their own commands. Copy `quantity` and `gate`. Do not recompute them.
+2. The desk label `ic-note` is not a CLI subcommand. Size and the gate, when they exist, come from their own commands. Copy `quantity` and `gate`. Do not recompute them. After the page is written, run `check-brief --kind ic`. The decision heading stays empty. A failed check is not a finished note.
 
 3. Write one page, in this order.
 

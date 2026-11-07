@@ -231,7 +231,7 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 
 `fetch` parses a cash bhavcopy, an F&O bhavcopy, a ban file, a contract file, an FII file, or an announcement file you already have. `--url` tries one public file and caches it under `data/cache/`, which is gitignored. Any download error leaves the field blank. The tests do not call the exchange. `series` counts verified, unverified, and refused names and does not rewrite `data/symbols.json`.
 
-The NSE equity, futures, and options transaction charges, and the SEBI turnover fee, are on the charge sheet from 1 March 2026 and are quoted beside STT. They are not inside the backtest net. Stamp duty is still blank. There is no BSE transaction rate on the sheet. GST applies to brokerage plus the exchange transaction charge when brokerage was supplied, and not to STT. Futures and options plans stay incomplete without an expiry and a lot size. An option also needs a strike and CE or PE.
+The NSE equity, futures, and options transaction charges, and the SEBI turnover fee, are on the charge sheet from 1 March 2026 and are quoted beside STT. They are not inside the backtest net. From 0.4.0, BSE equity cash for groups A, B, and other non-exclusive scrips uses `bse_txn_equity`. BSE futures and options stay blank. Stamp duty is quoted only when the pack names `buyer_state`. GST applies to brokerage plus the exchange transaction charge when brokerage was supplied, and not to STT. Futures and options plans stay incomplete without an expiry and a lot size. An option also needs a strike and CE or PE.
 
 | Skill | Job |
 | --- | --- |
@@ -247,7 +247,7 @@ The NSE equity, futures, and options transaction charges, and the SEBI turnover 
 
 ### The book
 
-**Shipped as skills.** These six do not add a calculator and do not end in a buy or a sell. Limits, cases, and hedge ratios stay blank until the user supplies them. Gross, net, and days-to-exit are quoted only when the user already wrote them.
+**Shipped.** Five of these skills still have no calculator and do not end in a buy or a sell. `book-risk` quotes the `book` command. That command multiplies an open quantity by a price that is already in the file. It does not resize, and it does not draft an order. A missing price, volume, or cap stays blank. The risk gate reads a mandate only when the pack or `--mandate` points at one. `data/mandate.json` is a blank template and is not loaded by itself.
 
 | Skill | Job |
 | --- | --- |
@@ -268,6 +268,7 @@ src/indian_market/       Resolver, clock, expiry, costs, and the evidence comman
 data/symbols.json        Starter book of NSE symbols and BSE scrip codes
 data/holidays.json       2026 closures and the Muhurat session
 data/costs.json          Dated charge sheet
+data/mandate.json        Blank mandate template. The gate does not load it unless asked
 data/fixtures/           Recorded samples the tests and --demo use
 evals/                   Prompts for checking the skills in a fresh session
 tests/                   Offline unittest suite. No network.
@@ -280,7 +281,7 @@ $env:PYTHONPATH = "src"
 python -m unittest discover -s tests -v
 ```
 
-The suite covers the universe refusal, the Diwali expiry shift, Muhurat hours, the SAIL ban demo, the opening-range boundary at 09:30, unsourced SWOT and research notes, the Phase 2 session commands, the Phase 3 filing commands, the Phase 4 plan, size, gate, and journal, the Phase 5 scan, backtest, and paper ticket, the Phase 6 setup cards, morning chain, journal review, and official-file parser, and the presence of each skill. The official-file test uses a fixture or a URL that fails before any network call.
+The suite covers the universe refusal, the Diwali expiry shift, Muhurat hours, the SAIL ban demo, the opening-range boundary at 09:30, unsourced SWOT and research notes, the Phase 2 session commands, the Phase 3 filing commands, the Phase 4 plan, size, gate, and journal, the Phase 5 scan, backtest, and paper ticket, the Phase 6 setup cards, morning chain, journal review, and official-file parser, the 0.4.0 book, mandate, session folder, and charge-sheet checks, and the presence of each skill. The official-file test uses a fixture or a URL that fails before any network call.
 
 ## Scope
 

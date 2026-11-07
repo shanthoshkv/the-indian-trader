@@ -56,6 +56,6 @@ Not investment advice. Not an order.
 Missing: one line for each item with ok false.
 ```
 
-Quantity is price risk only, floored to `lot_size`. Charges are not deducted from it. STT, the NSE exchange transaction charge, and the SEBI turnover fee come from `data/costs.json` as separate fields. If a row has `ok` false, including a stale sheet or a BSE name with no exchange-transaction rate, leave that field blank. Stamp duty stays blank. GST appears only when brokerage was in the pack. The GST base is that brokerage plus the exchange transaction charge when that charge is present. GST is not applied to STT.
+Quantity is price risk only, floored to `lot_size`. Charges are not deducted from it. STT, the exchange transaction charge, and the SEBI turnover fee come from `data/costs.json` as separate fields. NSE uses the NSE rows. BSE equity cash uses `bse_txn_equity`. BSE futures and options leave the exchange transaction charge blank. Stamp stays blank unless `buyer_state` is in the pack. GST appears only when brokerage was in the pack. The GST base is that brokerage plus the exchange transaction charge when that charge is present. GST is not applied to STT.
 
 Fresh F&O on a blocked name, and intraday cash on a trade-for-trade or BE series, have no quantity. Hand a `ready` quantity to risk-gate. Do not turn it into an order.

@@ -37,6 +37,7 @@ Add `--exchange BSE` when the user names BSE. Add `--at 2026-11-06T10:00:00` to 
 - `ok: false` and `outside_universe`: say the name is not in this NSE and BSE pack, and stop.
 - `verified: false`: the symbol was accepted as a candidate NSE name. Say it is not in the starter book and must be confirmed on the exchange quote page before a trade.
 - `costs` with `ok: false`: the charge sheet is past its review date. Show the rates only with that warning.
+- A session with `calendar_ok` false is past the holiday-list review date. Do not treat that day as a confirmed session.
 - Copy expiry dates and session phase from the JSON. Do not recall a different expiry weekday.
 
 ## References

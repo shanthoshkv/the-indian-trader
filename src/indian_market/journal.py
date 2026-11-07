@@ -8,8 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from indian_market.calendar_in import IST
-from indian_market.costs import charge_rate
+from indian_market.costs import charge_rate, stamp_rate
 from indian_market.evidence import evidence, missing
+from indian_market.expiry import next_expiry
 from indian_market.records import as_date, as_ist, done, source_ok
 from indian_market.universe import resolve
 
@@ -22,6 +23,18 @@ _STT = {
 }
 
 _OUTCOMES = {"target_hit", "stopped", "open", "scratched"}
+_EXCHANGE = {
+    "intraday_cash": "nse_txn_equity",
+    "delivery": "nse_txn_equity",
+    "futures": "nse_txn_futures",
+    "options": "nse_txn_options_premium",
+}
+_STAMP = {
+    "intraday_cash": "stamp_equity_intraday",
+    "delivery": "stamp_equity_delivery",
+    "futures": "stamp_futures",
+    "options": "stamp_options_premium",
+}
 
 
 def logged_at(value: str | None) -> str:
@@ -206,18 +219,26 @@ def review_journal(path: Path, as_of: str | None = None) -> dict[str, Any]:
             )
         )
     total_net = 0.0
+    total_full = 0.0
     net_ok = True
+    full_ok = True
     counted = 0
+    _slices(items, closed, source, as_of)
     for setup, members in groups.items():
         _group(items, setup, members, source, as_of)
     for row in closed:
         scored = _net(row)
         if not scored["ok"]:
             net_ok = False
+            full_ok = False
             items.append(missing(symbol=row.get("symbol") or "NSE", exchange=row.get("exchange") or "NSE", field="trade_net_inr", source=source, detail=scored["detail"]))
             continue
         counted += 1
         total_net += scored["net"]
+        if scored["charges_ok"]:
+            total_full += scored["full"]
+        else:
+            full_ok = False
         items.append(
             evidence(
                 symbol=row.get("symbol") or "NSE",
@@ -250,6 +271,23 @@ def review_journal(path: Path, as_of: str | None = None) -> dict[str, Any]:
         )
     else:
         items.append(missing(symbol="NSE", exchange="NSE", field="net_after_stt_inr", source=source, detail="A closed row is missing entry, exit, quantity, or a usable STT rate."))
+    if counted and net_ok and full_ok:
+        items.append(
+            evidence(
+                symbol="NSE",
+                exchange="NSE",
+                field="net_after_charges_inr",
+                value=round(total_full, 2),
+                unit="INR",
+                session_date=as_of,
+                as_of_ist=None,
+                source=source,
+                freshness="filing",
+                detail="Gross minus STT minus the exchange transaction charge. GST is included only when the row has brokerage. Stamp is included only when the row names a buyer state.",
+            )
+        )
+    else:
+        items.append(missing(symbol="NSE", exchange="NSE", field="net_after_charges_inr", source=source, detail="A closed row has no exchange transaction rate, or a supplied brokerage or buyer state could not be priced."))
     items.append(
         evidence(
             symbol="NSE",
@@ -279,6 +317,53 @@ def _group(items, setup, members, source, as_of) -> None:
         items.append(evidence(symbol="NSE", exchange="NSE", field="setup_avg_r", value=round(average, 4), unit="ratio", session_date=as_of, as_of_ist=None, source=source, freshness="filing", detail=setup))
 
 
+def _slices(items, closed, source, as_of) -> None:
+    by_horizon: dict[str, list[dict[str, Any]]] = {}
+    by_week: dict[str, list[dict[str, Any]]] = {}
+    for row in closed:
+        by_horizon.setdefault(row.get("horizon") or "unset", []).append(row)
+        label = "true" if _in_expiry_week(row) else "false"
+        by_week.setdefault(label, []).append(row)
+    for horizon, members in by_horizon.items():
+        _rate(items, "horizon_hit_rate", horizon, members, source, as_of)
+    for label, members in by_week.items():
+        _rate(items, "expiry_week_hit_rate", label, members, source, as_of)
+
+
+def _rate(items, field, label, members, source, as_of) -> None:
+    if not members:
+        return
+    hits = sum(1 for row in members if row.get("outcome") == "target_hit")
+    items.append(
+        evidence(
+            symbol="NSE",
+            exchange="NSE",
+            field=field,
+            value=round(hits / len(members), 4),
+            unit="ratio",
+            session_date=as_of,
+            as_of_ist=None,
+            source=source,
+            freshness="filing",
+            detail=label,
+        )
+    )
+
+
+def _in_expiry_week(row: dict[str, Any]) -> bool:
+    on = as_date(row.get("outcome_at_ist") or "2026-11-06")
+    explicit = row.get("expiry_date")
+    if explicit:
+        return as_date(explicit).isocalendar()[:2] == on.isocalendar()[:2]
+    found = next_expiry(row.get("symbol") or "", on.isoformat())
+    if not found.get("ok"):
+        return False
+    for raw in (found.get("weekly"), found.get("monthly")):
+        if raw and as_date(raw).isocalendar()[:2] == on.isocalendar()[:2]:
+            return True
+    return False
+
+
 def _net(row: dict[str, Any]) -> dict[str, Any]:
     if None in (row.get("entry"), row.get("exit_price"), row.get("qty")) or row.get("horizon") not in _STT:
         return {"ok": False, "detail": "A closed review row needs entry, exit price, quantity, and a horizon."}
@@ -299,4 +384,54 @@ def _net(row: dict[str, Any]) -> dict[str, Any]:
     else:
         sell = exit_ if side == "long" else entry
         stt = abs(sell) * qty * rates[0]
-    return {"ok": True, "net": gross - stt, "session": on.isoformat()}
+    net = gross - stt
+    exchange_txn = _exchange_amount(row, entry, exit_, qty, on)
+    extra = _extra_charges(row, side, entry, exit_, qty, on, exchange_txn)
+    charges_ok = exchange_txn is not None and extra is not None
+    full = (net - exchange_txn - extra) if charges_ok else None
+    return {
+        "ok": True,
+        "net": net,
+        "session": on.isoformat(),
+        "exchange_txn": exchange_txn,
+        "full": full,
+        "charges_ok": charges_ok,
+    }
+
+
+def _exchange_amount(row: dict[str, Any], entry: float, exit_: float, qty: float, on) -> float | None:
+    exchange = str(row.get("exchange") or "NSE").upper()
+    horizon = row["horizon"]
+    if exchange == "BSE":
+        if horizon not in {"intraday_cash", "delivery"}:
+            return None
+        item_id = "bse_txn_equity"
+    elif exchange == "NSE":
+        item_id = _EXCHANGE[horizon]
+    else:
+        return None
+    found = charge_rate(item_id, on)
+    if not found["ok"]:
+        return None
+    return (abs(entry) + abs(exit_)) * qty * found["rate"]
+
+
+def _extra_charges(row, side, entry, exit_, qty, on, exchange_txn) -> float | None:
+    """GST only when the row has brokerage. Stamp only when it names a buyer state."""
+    extra = 0.0
+    brokerage = row.get("brokerage_inr")
+    if brokerage is not None:
+        if exchange_txn is None:
+            return None
+        found = charge_rate("gst_on_brokerage_and_charges", on)
+        if not found["ok"]:
+            return None
+        extra += (float(brokerage) + exchange_txn) * found["rate"]
+    state = row.get("buyer_state")
+    if state:
+        found = stamp_rate(_STAMP[row["horizon"]], state, on)
+        if not found["ok"]:
+            return None
+        buy = entry if side == "long" else exit_
+        extra += abs(buy) * qty * found["rate"]
+    return extra

@@ -11,6 +11,7 @@ from pathlib import Path
 from indian_market.actions import read_actions, read_results
 from indian_market.analysis import analyze
 from indian_market.backtest import run_backtest
+from indian_market.book import read_book
 from indian_market.breadth import read_breadth
 from indian_market.briefs import check_brief
 from indian_market.calendar_in import IST, session_state
@@ -24,13 +25,14 @@ from indian_market.gate import assess_gate
 from indian_market.journal import add_outcome, add_plan, review_journal, show_journal
 from indian_market.levels import read_levels
 from indian_market.morning import run_morning
-from indian_market.official import fetch_official, parse_official
+from indian_market.official import KINDS, fetch_official, parse_official
 from indian_market.options_book import read_options
 from indian_market.paths import data_dir, fixtures_dir
 from indian_market.plan import read_plan
 from indian_market.premarket import build_premarket
 from indian_market.rotation import read_rotation
 from indian_market.scanner import scan_list
+from indian_market.session_pack import build_session_pack
 from indian_market.sizing import size_position
 from indian_market.strategies import SETUPS
 from indian_market.ticket import build_ticket
@@ -188,6 +190,8 @@ _FETCH_DEMO = {
     "cash_bhav": "official_cash.csv",
     "ban": "official_ban.csv",
     "contract": "official_contract.csv",
+    "delivery": "official_delivery.csv",
+    "constituents": "official_constituents.csv",
 }
 
 
@@ -218,7 +222,7 @@ def cmd_fetch(args: argparse.Namespace) -> int:
                 {
                     "ok": False,
                     "error": "no_evidence",
-                    "detail": "Demo files exist for cash_bhav, ban, and contract. Pass --file for another kind.",
+                    "detail": "Demo files exist for cash_bhav, ban, contract, delivery, and constituents. Pass --file for another kind.",
                 },
                 2,
             )
@@ -275,8 +279,31 @@ def cmd_ticket(args: argparse.Namespace) -> int:
     return _print(payload, 0 if payload.get("ok") else 2)
 
 
+def cmd_session_pack(args: argparse.Namespace) -> int:
+    if args.demo:
+        directory = fixtures_dir() / "session_sample"
+    elif args.directory:
+        directory = Path(args.directory)
+    else:
+        return _print(
+            {
+                "ok": False,
+                "error": "no_evidence",
+                "detail": "Pass --dir or --demo. A missing file stays blank. This command does not download.",
+            },
+            2,
+        )
+    payload = build_session_pack(directory, session=args.session, symbol=args.symbol)
+    return _print(payload, 0 if payload.get("ok") else 2)
+
+
 def _run_pack(args: argparse.Namespace, demo_name: str, fn, *, resolve_symbol: bool) -> int:
     pack = _demo(demo_name) if args.demo else _load(args.fixture)
+    mandate = getattr(args, "mandate", None)
+    if mandate:
+        loaded = json.loads(Path(mandate).read_text(encoding="utf-8"))
+        pack = dict(pack)
+        pack["mandate"] = loaded
     if resolve_symbol:
         resolved = resolve(pack["symbol"], pack.get("exchange"))
         if not resolved["ok"]:
@@ -307,6 +334,7 @@ _PACKS = (
     ("gate", "gate_pass.json", assess_gate, True),
     ("scan", "scan_list.json", scan_list, False),
     ("backtest", "backtest_reliance.json", run_backtest, True),
+    ("book", "book.json", read_book, False),
 )
 
 
@@ -350,7 +378,7 @@ def main(argv: list[str] | None = None) -> int:
 
     brief_cmd = sub.add_parser("check-brief")
     brief_cmd.add_argument("path")
-    brief_cmd.add_argument("--kind", required=True, choices=("research", "swot", "concall"))
+    brief_cmd.add_argument("--kind", required=True, choices=("research", "swot", "concall", "thesis", "short", "ic"))
     brief_cmd.set_defaults(func=cmd_check_brief)
 
     desk_cmd = sub.add_parser("desk")
@@ -404,7 +432,7 @@ def main(argv: list[str] | None = None) -> int:
     morning_cmd.set_defaults(func=cmd_morning)
 
     fetch_cmd = sub.add_parser("fetch")
-    fetch_cmd.add_argument("--kind", required=True, choices=("cash_bhav", "fo_bhav", "ban", "contract", "flows", "announcements"))
+    fetch_cmd.add_argument("--kind", required=True, choices=tuple(KINDS))
     fetch_cmd.add_argument("--session")
     fetch_cmd.add_argument("--file")
     fetch_cmd.add_argument("--url")
@@ -416,10 +444,18 @@ def main(argv: list[str] | None = None) -> int:
     series_cmd.add_argument("--demo", action="store_true")
     series_cmd.set_defaults(func=cmd_series)
 
+    session_pack_cmd = sub.add_parser("session-pack")
+    session_pack_cmd.add_argument("--dir", dest="directory")
+    session_pack_cmd.add_argument("--demo", action="store_true")
+    session_pack_cmd.add_argument("--session")
+    session_pack_cmd.add_argument("--symbol")
+    session_pack_cmd.set_defaults(func=cmd_session_pack)
+
     for name, demo_name, fn, resolve_symbol in _PACKS:
         pack_cmd = sub.add_parser(name)
         pack_cmd.add_argument("--fixture")
         pack_cmd.add_argument("--demo", action="store_true")
+        pack_cmd.add_argument("--mandate", help="Merge this mandate file into the pack. A missing file is not loaded.")
         pack_cmd.set_defaults(
             func=lambda args, demo_name=demo_name, fn=fn, resolve_symbol=resolve_symbol: _run_pack(
                 args, demo_name, fn, resolve_symbol=resolve_symbol

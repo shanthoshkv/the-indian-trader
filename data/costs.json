@@ -65,7 +65,7 @@
       "rate": null,
       "side": "buy",
       "effective_from": "2020-07-01",
-      "source": "Stamp duty is set by the state and charged on the buy side. Do not apply one national rate."
+      "source": "This row has no rate. Uniform Article 56A rates are on stamp_rates and need the buyer's state."
     },
     {
       "id": "nse_txn_equity",
@@ -98,6 +98,86 @@
       "side": "each",
       "effective_from": "2026-03-01",
       "source": "Rs 10 per crore of turnover. Confirm the current SEBI fee schedule at each review."
+    },
+    {
+      "id": "bse_txn_equity",
+      "label": "BSE cash transaction charge, groups A, B, and other non-exclusive scrips, each side",
+      "rate": 0.0000375,
+      "side": "each",
+      "effective_from": "2024-01-01",
+      "source": "Rs 375 per crore each side, 0.00375%. Applies to groups A, B, and other non-exclusive scrips. Other groups are not this rate. BSE futures and options are not this row. https://www.bseindia.com/static/members/TFEquity.aspx reviewed 2026-11-06."
+    }
+  ],
+  "stamp_states": [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Lakshadweep",
+    "Puducherry"
+  ],
+  "stamp_rates": [
+    {
+      "id": "stamp_equity_delivery",
+      "label": "Stamp duty, equity delivery, buy side",
+      "rate": 0.00015,
+      "side": "buy",
+      "effective_from": "2020-07-01",
+      "source": "Indian Stamp Act, 1899, Schedule I Article 56A, as amended by the Finance Act, 2019. Collection through exchanges from 1 July 2020. 0.015% on the buy side. The rate is uniform. The buyer's state is who receives it."
+    },
+    {
+      "id": "stamp_equity_intraday",
+      "label": "Stamp duty, equity non-delivery, buy side",
+      "rate": 0.00003,
+      "side": "buy",
+      "effective_from": "2020-07-01",
+      "source": "Indian Stamp Act, 1899, Schedule I Article 56A. 0.003% on the buy side for a non-delivery transfer. The rate is uniform. The buyer's state is who receives it."
+    },
+    {
+      "id": "stamp_futures",
+      "label": "Stamp duty, equity and index futures, buy side",
+      "rate": 0.00002,
+      "side": "buy",
+      "effective_from": "2020-07-01",
+      "source": "Indian Stamp Act, 1899, Schedule I Article 56A. 0.002% on the buy side. The rate is uniform. The buyer's state is who receives it."
+    },
+    {
+      "id": "stamp_options_premium",
+      "label": "Stamp duty, equity and index options, buy side on premium",
+      "rate": 0.00003,
+      "side": "buy",
+      "effective_from": "2020-07-01",
+      "source": "Indian Stamp Act, 1899, Schedule I Article 56A. 0.003% of premium on the buy side. The rate is uniform. The buyer's state is who receives it."
     }
   ]
 }

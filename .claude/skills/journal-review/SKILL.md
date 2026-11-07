@@ -38,4 +38,4 @@ Not investment advice.
 Missing: one line for each item with ok false.
 ```
 
-Quote `hit_rate`, `avg_r`, `net_after_stt_inr`, and `open_risk_inr`. Open rows are excluded from the hit rate and counted in open risk. Net is gross minus STT. The exchange transaction charge is not inside that net. A row the command marks missing stays blank.
+Quote `hit_rate`, `avg_r`, `net_after_stt_inr`, `net_after_charges_inr`, `horizon_hit_rate`, `expiry_week_hit_rate`, and `open_risk_inr`. Open rows are excluded from the hit rate and counted in open risk. `net_after_stt_inr` is gross minus STT. `net_after_charges_inr` also subtracts the exchange transaction charge, and GST or stamp only when that row supplied brokerage or a buyer state. If any closed row has no exchange rate, the full-cost field stays blank and the STT net remains. A row the command marks missing stays blank.

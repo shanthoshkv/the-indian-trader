@@ -39,6 +39,7 @@ def assess_gate(pack: dict[str, Any]) -> dict[str, Any]:
     _risk_reward(pack, reasons)
     _loss_and_count(pack, reasons)
     _session_flags(pack, reasons)
+    _mandate(pack, reasons)
     _fresh(pack, reasons)
     _costs(pack, reasons)
     gate = "BLOCK" if reasons else "PASS"
@@ -106,6 +107,29 @@ def _session_flags(pack: dict, reasons: list[str]) -> None:
     open_risk, limit = pack.get("open_risk_inr"), pack.get("daily_loss_limit_inr")
     if open_risk is not None and limit is not None and open_risk >= limit:
         reasons.append("Open planned risk has reached the daily loss limit.")
+
+
+def _mandate(pack: dict, reasons: list[str]) -> None:
+    mandate = pack.get("mandate")
+    if not mandate:
+        return
+    horizons = mandate.get("horizon") or []
+    if horizons and pack.get("horizon") not in horizons:
+        reasons.append("Horizon is outside the mandate.")
+    side = pack.get("side") or "long"
+    if mandate.get("direction") == "long_only" and side == "short":
+        reasons.append("The mandate is long only.")
+    if mandate.get("allow_short") is False and side == "short":
+        reasons.append("The mandate does not allow a short.")
+    series = str(pack.get("series") or "").upper()
+    if series in {"SM", "ST", "SZ"} and mandate.get("allow_sme") is False:
+        reasons.append("The mandate does not allow an SME series.")
+    if pack.get("muhurat") and mandate.get("allow_muhurat") is False:
+        reasons.append("The mandate does not allow a Muhurat session.")
+    cap = mandate.get("daily_loss_limit_inr")
+    limit = pack.get("daily_loss_limit_inr")
+    if cap is not None and limit is not None and limit > cap:
+        reasons.append("The plan loss limit is above the mandate.")
 
 
 def _costs(pack: dict, reasons: list[str]) -> None:

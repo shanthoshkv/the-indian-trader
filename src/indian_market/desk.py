@@ -112,6 +112,8 @@ _RULES: tuple[tuple[str, str, int], ...] = (
     ("bhav copy", "official-files", 8),
     ("official file", "official-files", 8),
     ("series report", "official-files", 8),
+    ("session pack", "official-files", 9),
+    ("session folder", "official-files", 9),
     ("trading mandate", "mandate", 9),
     ("book mandate", "mandate", 9),
     ("investment thesis", "thesis-memo", 9),
@@ -162,7 +164,7 @@ _COMMAND = {
     "mandate": "none",
     "thesis-memo": "none",
     "short-case": "none",
-    "book-risk": "none",
+    "book-risk": "book",
     "pair-note": "none",
     "ic-note": "none",
 }

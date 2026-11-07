@@ -18,7 +18,7 @@ Not investment advice. This is not an order.
 2. Read surveillance-check. A fresh future on an F&O ban is not expressible. Cash is still cash. Do not decide the ban from memory.
 3. Read the mandate. If `allow_short` is false, the output is "not in the mandate."
 
-The desk label `short-case` is not a CLI subcommand.
+The desk label `short-case` is not a CLI subcommand. After the note is written, run `check-brief --kind short` on that file. A failed check is not a finished note.
 
 4. Write these sections.
 

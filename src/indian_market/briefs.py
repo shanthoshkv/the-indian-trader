@@ -1,4 +1,4 @@
-"""Check that a research or SWOT note cites a source on every bullet."""
+"""Check that a note cites a source on every bullet and does not smuggle a verdict."""
 
 from __future__ import annotations
 
@@ -25,6 +25,43 @@ CONCALL_HEADINGS = (
     "capex",
     "declined",
 )
+THESIS_HEADINGS = (
+    "claim",
+    "micro",
+    "governance",
+    "industry",
+    "macro",
+    "variant",
+    "drivers",
+    "catalyst path",
+    "setup",
+    "cases",
+    "kill criteria",
+    "pre-mortem",
+)
+SHORT_HEADINGS = (
+    "failure",
+    "expression",
+    "squeeze",
+    "asymmetry",
+    "result",
+)
+IC_HEADINGS = (
+    "mandate",
+    "thesis",
+    "other side",
+    "book",
+    "size and gate",
+    "decision",
+)
+_KINDS = {
+    "research": RESEARCH_HEADINGS,
+    "swot": SWOT_HEADINGS,
+    "concall": CONCALL_HEADINGS,
+    "thesis": THESIS_HEADINGS,
+    "short": SHORT_HEADINGS,
+    "ic": IC_HEADINGS,
+}
 
 _HEADING = re.compile(r"^#{1,3}\s+(.+?)\s*$", re.MULTILINE)
 _BULLET = re.compile(r"^-\s+(.+)$", re.MULTILINE)
@@ -52,7 +89,7 @@ def check_brief(path: Path, kind: str) -> dict:
     if _VERDICT.search(text) or _STRONG.search(text):
         problems.append("The note contains a buy or sell verdict. Leave the view to the reader.")
 
-    required = {"research": RESEARCH_HEADINGS, "swot": SWOT_HEADINGS, "concall": CONCALL_HEADINGS}.get(kind)
+    required = _KINDS.get(kind)
     if required is None:
         return {"ok": False, "problems": [f"Unknown kind {kind}."]}
 
@@ -62,7 +99,13 @@ def check_brief(path: Path, kind: str) -> dict:
         if body is None:
             problems.append(f"Missing heading: {heading}.")
             continue
+        if kind == "ic" and heading == "decision" and body.strip():
+            problems.append("The decision line is not empty.")
+            continue
         for bullet in _BULLET.findall(body):
+            if kind in {"thesis", "short", "ic"} and re.match(r"(?i)(buy|sell)\b", bullet.strip()):
+                problems.append(f"Bullet under {heading} is a buy or sell verdict.")
+                continue
             source = _SOURCE.search(bullet)
             if not source:
                 problems.append(f"Bullet under {heading} has no source: {bullet[:80]}")

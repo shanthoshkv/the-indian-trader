@@ -72,3 +72,5 @@ Collect every reason, not only the first. F&O ban blocks futures and options. Tr
 Four checks run only when the pack includes the key. Leave them out when you do not have them. Muhurat blocks when `muhurat` is true. A rupee circuit distance blocks when both `circuit_distance_inr` and `min_circuit_distance_inr` are present and the distance is inside the minimum. An ex-date, a record date, or a board meeting blocks when `ex_date_today`, `record_date_today`, or `board_meeting_today` is true. Open planned risk blocks when both `open_risk_inr` and `daily_loss_limit_inr` are present and open risk has reached the limit. The demo leaves these keys out and stays PASS.
 
 On BLOCK, stop. Do not draft a ticket.
+
+If the pack includes a `mandate` object, a broken rule in that object is a BLOCK. A missing mandate key is not checked. Do not load `data/mandate.json` unless the pack or `--mandate` points at it. Null caps do not block. This command does not size.

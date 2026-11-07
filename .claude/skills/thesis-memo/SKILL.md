@@ -15,7 +15,7 @@ Not investment advice. This is not an order.
 ## Steps
 
 1. Resolve the symbol. Stop on `outside_universe`. If the mandate skill has rules on disk, drop the idea when it breaks one. A dropped idea does not get the rest of this memo.
-2. Take numbers only from commands already run, or from a file those commands checked. The desk label `thesis-memo` is not a CLI subcommand.
+2. Take numbers only from commands already run, or from a file those commands checked. The desk label `thesis-memo` is not a CLI subcommand. After the memo is written, run `check-brief --kind thesis` on that file. A failed check is not a finished memo.
 
 Read, when the user has the files:
 

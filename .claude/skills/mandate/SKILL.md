@@ -43,7 +43,7 @@ $env:PYTHONPATH = "src"
 python -m indian_market.cli resolve SYMBOL
 ```
 
-The desk label `mandate` is not a CLI subcommand. Do not run it.
+The desk label `mandate` is not a CLI subcommand. Do not run it. `data/mandate.json` is a blank template. The risk gate reads a mandate only when the pack or `gate --mandate` points at a file. Null caps do not block. This skill does not size.
 
 3. Refuse a fresh derivative when surveillance says the name is in F&O ban. Refuse intraday cash when the series is trade-for-trade or BE. Refuse SME when `allow_sme` is false. Refuse a Muhurat session when `allow_muhurat` is false. These checks use surveillance-check and market-core. They do not replace risk-gate.
 

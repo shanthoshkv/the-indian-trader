@@ -39,6 +39,41 @@ def charge_rate(item_id: str, as_of: date | None = None) -> dict:
     return {"ok": False, "detail": f"No charge named {item_id}."}
 
 
+def stamp_rate(item_id: str, state: str | None, as_of: date | None = None) -> dict:
+    """Uniform Article 56A rate, only after the buyer's state is named on the sheet."""
+    status = review_status(as_of)
+    if not status["ok"]:
+        return {
+            "ok": False,
+            "detail": f"Charge sheet reviewed {status['last_reviewed']} is stale on {status['as_of']}.",
+        }
+    if not state or not str(state).strip():
+        return {"ok": False, "detail": "Stamp duty needs the buyer's state. No rate is applied without it."}
+    sheet = load_costs()
+    known = {name.casefold(): name for name in sheet.get("stamp_states") or []}
+    canonical = known.get(str(state).strip().casefold())
+    if canonical is None:
+        return {"ok": False, "detail": f"{state} is not on the stamp sheet."}
+    on = date.fromisoformat(status["as_of"])
+    for item in sheet.get("stamp_rates") or []:
+        if item["id"] != item_id:
+            continue
+        if item.get("rate") is None:
+            return {"ok": False, "detail": f"{item_id} has no rate."}
+        effective = date.fromisoformat(item["effective_from"])
+        if effective > on:
+            return {"ok": False, "detail": f"{item_id} is effective from {item['effective_from']}."}
+        return {
+            "ok": True,
+            "id": item_id,
+            "rate": float(item["rate"]),
+            "state": canonical,
+            "effective_from": item["effective_from"],
+            "source": item.get("source") or "data/costs.json",
+        }
+    return {"ok": False, "detail": f"No stamp rate named {item_id}."}
+
+
 def review_status(as_of: date | None = None) -> dict:
     sheet = load_costs()
     as_of = as_of or date.today()

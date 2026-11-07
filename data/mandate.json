@@ -1,0 +1,14 @@
+{
+  "book_inr": null,
+  "horizon": [],
+  "direction": "long_only",
+  "single_name_cap_pct": null,
+  "sector_cap_pct": null,
+  "gross_band": null,
+  "net_band": null,
+  "daily_loss_limit_inr": null,
+  "max_participation_pct": null,
+  "allow_muhurat": false,
+  "allow_sme": false,
+  "allow_short": false
+}

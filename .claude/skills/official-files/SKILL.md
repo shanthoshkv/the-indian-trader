@@ -1,10 +1,10 @@
 ---
 name: official-files
 description: >
-  Parses an NSE cash bhavcopy, F&O bhavcopy, ban file, contract file, FII
-  file, or announcement file the user already has, and can try one public
-  URL. Use when the user asks for a bhav copy, an official file, or a series
-  report. A failed download stays blank. NSE and BSE only.
+  Parses an NSE or BSE file the user already has, including a session folder,
+  and can try one public URL. Use when the user asks for a bhav copy, an
+  official file, a session pack, or a series report. A failed download stays
+  blank. NSE and BSE only.
 ---
 
 # Official files
@@ -24,15 +24,24 @@ python -m indian_market.cli fetch --kind ban --demo
 python -m indian_market.cli fetch --kind contract --demo
 ```
 
-`--demo` without another kind reads `data/fixtures/official_cash.csv`. Kinds are `cash_bhav`, `fo_bhav`, `ban`, `contract`, `flows`, and `announcements`.
+`--demo` reads the fixture for `cash_bhav`, `ban`, `contract`, `delivery`, or `constituents`. Other kinds need `--file`. Kinds also include `fo_bhav`, `flows`, `announcements`, `bulk_deals`, `block_deals`, `asm`, `gsm`, `esm`, `mwpl`, `shareholding`, and `pledge`. A blank pledge cell is not zero. A constituent weight stays blank when the file has none. There is no list of index members in this pack.
 
-2. A public URL is optional. Pass `--url`. If the download fails, leave the field blank. Do not retype the figure from memory.
+2. A session folder parses each known file that is present and leaves the rest blank. It does not run the morning chain.
+
+```
+python -m indian_market.cli session-pack --dir data\sessions\2026-11-06
+python -m indian_market.cli session-pack --demo
+```
+
+`--demo` is `data/fixtures/session_sample`. One file still uses `fetch`. The desk label for a session folder stays `fetch`.
+
+3. A public URL is optional. Pass `--url`. If the download fails, leave the field blank. Do not retype the figure from memory.
 
 ```
 python -m indian_market.cli fetch --kind cash_bhav --session 2026-11-06 --url https://example.invalid/bhav.csv
 ```
 
-3. A series report counts verified, unverified, and refused rows. It does not rewrite `data/symbols.json`.
+4. A series report counts verified, unverified, and refused rows. It does not rewrite `data/symbols.json`.
 
 ```
 python -m indian_market.cli series --demo

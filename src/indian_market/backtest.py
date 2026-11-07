@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from indian_market.costs import charge_rate
+from indian_market.costs import charge_rate, stamp_rate
 from indian_market.evidence import evidence, missing
 from indian_market.expiry import next_expiry
 from indian_market.records import as_date, done, source_ok
@@ -19,6 +19,12 @@ _STT = {
     "delivery": ("stt_equity_delivery_buy", "stt_equity_delivery_sell"),
     "futures": ("stt_fut_sell",),
     "options": ("stt_opt_premium_sell",),
+}
+_STAMP = {
+    "intraday_cash": "stamp_equity_intraday",
+    "delivery": "stamp_equity_delivery",
+    "futures": "stamp_futures",
+    "options": "stamp_options_premium",
 }
 
 
@@ -51,17 +57,21 @@ def run_backtest(pack: dict[str, Any]) -> dict[str, Any]:
         return done(items, symbol=symbol, exchange=exchange)
 
     slip = float(pack["slippage_ticks"]) * float(pack["tick_size"])
+    actions = pack.get("actions")
+    buyer_state = pack.get("buyer_state")
     total_net = 0.0
     total_stt = 0.0
     total_slip = 0.0
     total_exchange = 0.0
+    total_stamp = 0.0
     exchange_blank = False
+    stamp_blank = False
     expiry_hits = 0
     nets: list[float] = []
     by_horizon: dict[str, float] = {}
     for index, trade in enumerate(pack["trades"], start=1):
         trade_horizon = trade.get("horizon") or horizon
-        scored = _trade(symbol, exchange, series, trade_horizon, trade, slip, source)
+        scored = _trade(symbol, exchange, series, trade_horizon, trade, slip, source, actions, buyer_state)
         if not scored["ok"]:
             items.append(missing(symbol=symbol, exchange=exchange, series=series, field="trade_net_pnl_inr", source="data/costs.json", detail=scored["detail"]))
             return done(items, symbol=symbol, exchange=exchange)
@@ -72,6 +82,11 @@ def run_backtest(pack: dict[str, Any]) -> dict[str, Any]:
             exchange_blank = True
         else:
             total_exchange += scored["exchange_txn"]
+        if buyer_state:
+            if scored["stamp"] is None:
+                stamp_blank = True
+            else:
+                total_stamp += scored["stamp"]
         nets.append(scored["net"])
         by_horizon[trade_horizon] = by_horizon.get(trade_horizon, 0.0) + scored["net"]
         if scored["expiry_week"]:
@@ -87,6 +102,11 @@ def run_backtest(pack: dict[str, Any]) -> dict[str, Any]:
         items.append(missing(symbol=symbol, exchange=exchange, series=series, field="exchange_txn_inr", source="data/costs.json", detail="Exchange transaction charge was not on the sheet for every fill."))
     else:
         items.append(evidence(field="exchange_txn_inr", value=round(total_exchange, 2), unit="INR", detail="Both sides on the adjusted fills. Not inside net_pnl_inr.", **summary))
+    if buyer_state:
+        if stamp_blank:
+            items.append(missing(symbol=symbol, exchange=exchange, series=series, field="stamp_inr", source="data/costs.json", detail="Stamp duty could not be priced for every fill. It is not inside net_pnl_inr."))
+        else:
+            items.append(evidence(field="stamp_inr", value=round(total_stamp, 2), unit="INR", detail=f"Buy-side stamp for {buyer_state}. Not inside net_pnl_inr.", **summary))
     items.append(evidence(field="max_drawdown_inr", value=round(_drawdown(nets), 2), unit="INR", detail="Peak to trough of the cumulative net, in trade order.", **summary))
     items.append(evidence(field="expiry_week_count", value=expiry_hits, unit="count", **summary))
     for name, total in by_horizon.items():
@@ -94,7 +114,7 @@ def run_backtest(pack: dict[str, Any]) -> dict[str, Any]:
     return done(items, symbol=symbol, exchange=exchange, series=series)
 
 
-def _trade(symbol, exchange, series, horizon, trade, slip, source) -> dict[str, Any]:
+def _trade(symbol, exchange, series, horizon, trade, slip, source, actions, buyer_state) -> dict[str, Any]:
     if None in (trade.get("entry"), trade.get("exit"), trade.get("qty"), trade.get("exit_time")):
         return {"ok": False, "detail": "A trade needs entry, exit, qty, and exit_time."}
     side = trade.get("side") or "long"
@@ -102,10 +122,13 @@ def _trade(symbol, exchange, series, horizon, trade, slip, source) -> dict[str, 
         return {"ok": False, "detail": "Trade side is long or short."}
     if horizon not in _STT:
         return {"ok": False, "detail": "Trade horizon is intraday_cash, delivery, futures, or options."}
+    adjusted = _adjusted(trade, actions)
+    if adjusted["error"]:
+        return {"ok": False, "detail": adjusted["error"]}
     on = as_date(trade["exit_time"])
     signed = slip if side == "long" else -slip
-    entry = trade["entry"] + signed
-    exit_ = trade["exit"] - signed
+    entry = adjusted["entry"] + signed
+    exit_ = adjusted["exit"] - signed
     qty = trade["qty"]
     gross = (exit_ - entry) * qty if side == "long" else (entry - exit_) * qty
     slippage = abs(slip) * qty * 2
@@ -121,16 +144,49 @@ def _trade(symbol, exchange, series, horizon, trade, slip, source) -> dict[str, 
             return gst
         net -= brokerage * gst["rate"]
     week = _expiry_week(symbol, on, trade.get("expiry_date"))
+    stamp = None
+    if buyer_state:
+        stamped = _stamp(horizon, side, entry, exit_, qty, on, buyer_state)
+        if stamped["ok"]:
+            stamp = stamped["amount"]
     return {
         "ok": True,
         "net": net,
         "stt": stt["amount"],
         "exchange_txn": exchange_txn,
+        "stamp": stamp,
         "slippage": slippage,
         "session": on.isoformat(),
         "expiry_week": week["expiry_week"],
         "expiry_detail": week["detail"],
     }
+
+
+def _adjusted(trade: dict[str, Any], actions) -> dict[str, Any]:
+    """Apply a supplied price_factor to legs strictly before ex_date. Slippage comes later."""
+    entry = float(trade["entry"])
+    exit_ = float(trade["exit"])
+    if not actions:
+        return {"entry": entry, "exit": exit_, "error": None}
+    if not trade.get("entry_time"):
+        return {"entry": entry, "exit": exit_, "error": "A corporate action needs entry_time. Prices were not adjusted."}
+    entry_day = as_date(trade["entry_time"])
+    exit_day = as_date(trade["exit_time"])
+    for action in actions:
+        factor = action.get("price_factor")
+        ex = action.get("ex_date")
+        if factor is None or ex in (None, ""):
+            return {"entry": entry, "exit": exit_, "error": "A corporate action needs a numeric price_factor and an ex_date. Prices were not adjusted."}
+        try:
+            factor = float(factor)
+        except (TypeError, ValueError):
+            return {"entry": entry, "exit": exit_, "error": "A corporate action needs a numeric price_factor and an ex_date. Prices were not adjusted."}
+        ex_day = as_date(ex)
+        if entry_day < ex_day:
+            entry *= factor
+        if exit_day < ex_day:
+            exit_ *= factor
+    return {"entry": entry, "exit": exit_, "error": None}
 
 
 def _stt(horizon: str, side: str, entry: float, exit_: float, qty: float, on: date) -> dict[str, Any]:
@@ -162,15 +218,26 @@ def _drawdown(nets: list[float]) -> float:
     return worst
 
 
+def _stamp(horizon: str, side: str, entry: float, exit_: float, qty: float, on: date, state: str) -> dict[str, Any]:
+    found = stamp_rate(_STAMP[horizon], state, on)
+    if not found["ok"]:
+        return found
+    buy = entry if side == "long" else exit_
+    return {"ok": True, "amount": abs(buy) * qty * found["rate"]}
+
+
 def _exchange_txn(horizon: str, exchange: str, entry: float, exit_: float, qty: float, on: date) -> float | None:
-    if exchange != "NSE":
+    if exchange == "NSE":
+        item_id = {
+            "intraday_cash": "nse_txn_equity",
+            "delivery": "nse_txn_equity",
+            "futures": "nse_txn_futures",
+            "options": "nse_txn_options_premium",
+        }[horizon]
+    elif exchange == "BSE" and horizon in {"intraday_cash", "delivery"}:
+        item_id = "bse_txn_equity"
+    else:
         return None
-    item_id = {
-        "intraday_cash": "nse_txn_equity",
-        "delivery": "nse_txn_equity",
-        "futures": "nse_txn_futures",
-        "options": "nse_txn_options_premium",
-    }[horizon]
     found = charge_rate(item_id, on)
     if not found["ok"]:
         return None

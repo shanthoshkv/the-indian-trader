@@ -6,6 +6,21 @@ The version line is the state of the skill pack. Phases that are not listed as s
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-07
+
+### Added
+
+- The risk gate reads a `mandate` object when the pack or `gate --mandate` supplies one. A missing key is not checked. `data/mandate.json` is a blank template and is not loaded by itself. Null caps do not block
+- `book` quotes gross, net, weight, days-to-exit, and open planned risk from open journal rows and a price file. It does not resize. The desk command for book risk is `book`. The other five book skills stay without a calculator
+- `check-brief` accepts `thesis`, `short`, and `ic`. An IC decision line that is not empty fails. A bullet that starts with buy or sell fails
+- `fetch` also parses delivery, bulk and block deals, ASM, GSM, ESM, MWPL, shareholding, pledge, and constituents. A blank pledge is not zero. A missing constituent weight stays blank. New kinds have no default URL
+- `session-pack` reads a folder of those files. A missing file stays blank. It does not run the morning chain
+- BSE equity cash transaction charge `bse_txn_equity` at 0.00375% each side for groups A, B, and other non-exclusive scrips, reviewed 2026-11-06. BSE futures and options stay blank. The charge is not inside the backtest net
+- Stamp duty is an Article 56A rate from `stamp_rate` only after `buyer_state` is named. `stamp_duty` itself stays null. Stamp is not deducted from quantity and is not inside the backtest net
+- Journal review adds `horizon_hit_rate`, `expiry_week_hit_rate`, and `net_after_charges_inr`. `net_after_stt_inr` is unchanged
+- A backtest adjusts prices only when `actions` supplies `price_factor` and `ex_date` and the trade has `entry_time`. An incomplete list fails that trade. The demo without actions is unchanged
+- The holiday list is stale after its review date plus 180 days. Dates through 2027-05-05 stay confirmed. A later date is not a confirmed session
+
 ## [0.3.0] - 2026-11-07
 
 ### Added

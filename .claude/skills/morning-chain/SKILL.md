@@ -37,7 +37,7 @@ $env:PYTHONPATH = "src"
 python -m indian_market.cli morning --fixture path\to\morning.json
 ```
 
-`--demo` is `data/fixtures/morning.json`.
+`--demo` is `data/fixtures/morning.json`. A folder of exchange files is `session-pack` under official-files. This chain does not parse that folder.
 
 ## Output
 

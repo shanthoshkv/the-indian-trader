@@ -14,7 +14,7 @@ Not investment advice.
 
 ## Steps
 
-1. The benchmark is `NIFTY` or `SENSEX`. Sector symbols must resolve. `NIFTYIT`, `NIFTYAUTO`, `NIFTYFMCG`, `NIFTYMETAL`, `NIFTYPHARMA`, and `BSEAUTO` are indexes in this pack.
+1. The benchmark is `NIFTY` or `SENSEX`. Sector symbols must resolve. `NIFTYIT`, `NIFTYAUTO`, `NIFTYFMCG`, `NIFTYMETAL`, `NIFTYPHARMA`, and `BSEAUTO` are indexes in this pack. Whether a stock is in an index comes from `fetch --kind constituents`. A missing weight stays blank. This skill does not keep a list of members.
 2. Build the pack from daily closes you have. Do not invent the missing days.
 
 ```json

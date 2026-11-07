@@ -1,0 +1,37 @@
+{
+  "source": "fixture:book",
+  "session_date": "2026-11-06",
+  "mandate": {
+    "book_inr": 100000,
+    "horizon": ["delivery", "intraday_cash"],
+    "direction": "long_only",
+    "single_name_cap_pct": 5,
+    "sector_cap_pct": 25,
+    "max_participation_pct": 10,
+    "allow_short": false
+  },
+  "prices": [
+    {"symbol": "TCS", "price": 4000, "volume": 1000, "sector": "IT"}
+  ],
+  "entries": [
+    {
+      "id": "DEL-1",
+      "symbol": "TCS",
+      "exchange": "NSE",
+      "outcome": "open",
+      "qty": 1,
+      "side": "long",
+      "planned_risk_inr": 1000,
+      "horizon": "delivery"
+    },
+    {
+      "id": "ORB-1",
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "outcome": "target_hit",
+      "qty": 100,
+      "side": "long",
+      "entry": 100
+    }
+  ]
+}

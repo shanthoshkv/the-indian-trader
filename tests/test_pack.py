@@ -11,6 +11,7 @@ import _path  # noqa: F401
 from indian_market.actions import read_actions, read_results
 from indian_market.analysis import analyze, oi_quadrant
 from indian_market.backtest import run_backtest
+from indian_market.book import read_book
 from indian_market.breadth import read_breadth
 from indian_market.briefs import check_brief
 from indian_market.concall import read_concall
@@ -27,15 +28,16 @@ from indian_market.rotation import read_rotation
 from indian_market.scanner import scan_list
 from indian_market.sizing import size_position
 from indian_market.ticket import build_ticket
-from indian_market.calendar_in import IST, is_trading_day, next_trading_day, session_state
+from indian_market.calendar_in import IST, calendar_status, is_trading_day, next_trading_day, session_state
 from indian_market.cli import main
-from indian_market.costs import review_status
+from indian_market.costs import charge_rate, review_status, stamp_rate
 from indian_market.expiry import next_expiry
 from indian_market.paths import fixtures_dir, repo_root
 from indian_market.surveillance import clear
 from indian_market.tape import read_tape
 from indian_market.morning import run_morning
 from indian_market.official import fetch_official, parse_official
+from indian_market.session_pack import build_session_pack
 from indian_market.strategies import delivery_rs, opening_range_break, post_result, previous_day_break, sector_leader, vwap_hold
 from indian_market.universe import resolve, series_report
 
@@ -841,6 +843,11 @@ class Phase6Tests(unittest.TestCase):
         self.assertEqual(_one(payload, "avg_r")["value"], 0.5)
         self.assertEqual(_one(payload, "net_after_stt_inr")["value"], 794.8)
         self.assertEqual(_one(payload, "open_risk_inr")["value"], 1000)
+        self.assertEqual(_one(payload, "horizon_hit_rate")["value"], 0.5)
+        self.assertEqual(_one(payload, "horizon_hit_rate")["detail"], "intraday_cash")
+        self.assertEqual(_one(payload, "expiry_week_hit_rate")["detail"], "false")
+        self.assertEqual(_one(payload, "expiry_week_hit_rate")["value"], 0.5)
+        self.assertEqual(_one(payload, "net_after_charges_inr")["value"], 793.55)
         self.assertEqual(open_risk_inr(path), 1000)
         nets = sorted(row["value"] for row in payload["items"] if row["field"] == "trade_net_inr" and row["ok"])
         self.assertEqual(nets, [-202.45, 997.25])
@@ -952,7 +959,7 @@ class Phase6Tests(unittest.TestCase):
         bse["exchange"] = "BSE"
         blank = run_backtest(bse)
         self.assertEqual(_one(blank, "net_pnl_inr")["value"], 39.71)
-        self.assertFalse(_one(blank, "exchange_txn_inr")["ok"])
+        self.assertEqual(_one(blank, "exchange_txn_inr")["value"], 0.09)
 
     def test_next_session_after_the_friday_result_is_muhurat(self):
         self.assertEqual(next_trading_day("2026-11-06").isoformat(), "2026-11-08")
@@ -975,6 +982,9 @@ class Phase6Tests(unittest.TestCase):
         self.assertEqual(route_request("investment thesis")["skill"], "thesis-memo")
         self.assertEqual(route_request("short case")["skill"], "short-case")
         self.assertEqual(route_request("book risk")["skill"], "book-risk")
+        self.assertEqual(route_request("book risk")["command"], "book")
+        self.assertEqual(route_request("session pack")["skill"], "official-files")
+        self.assertEqual(route_request("session pack")["command"], "fetch")
         self.assertEqual(route_request("pair trade")["skill"], "pair-note")
         self.assertEqual(route_request("investment committee")["skill"], "ic-note")
         self.assertEqual(route_request("investment committee")["command"], "none")
@@ -982,6 +992,257 @@ class Phase6Tests(unittest.TestCase):
         self.assertEqual(route_request("place an order")["error"], "no_route")
         vague = route_request("what is india vix")
         self.assertEqual(vague["error"], "ambiguous")
+
+
+class Phase7Tests(unittest.TestCase):
+    def test_blank_mandate_does_not_block_and_a_broken_rule_does(self):
+        passed = assess_gate(_load("gate_pass.json"))
+        self.assertEqual(passed["gate"], "PASS")
+        blank = _load("gate_pass.json")
+        blank["mandate"] = json.loads((ROOT / "data" / "mandate.json").read_text(encoding="utf-8"))
+        self.assertEqual(assess_gate(blank)["gate"], "PASS")
+        horizon = _load("gate_pass.json")
+        horizon["mandate"] = {"horizon": ["delivery"]}
+        self.assertIn("Horizon is outside the mandate.", assess_gate(horizon)["reasons"])
+        short = _load("gate_pass.json")
+        short["side"] = "short"
+        short["mandate"] = {"direction": "long_only", "allow_short": False}
+        reasons = assess_gate(short)["reasons"]
+        self.assertIn("The mandate is long only.", reasons)
+        self.assertIn("The mandate does not allow a short.", reasons)
+        sme = _load("gate_pass.json")
+        sme["series"] = "SM"
+        sme["mandate"] = {"allow_sme": False}
+        self.assertIn("The mandate does not allow an SME series.", assess_gate(sme)["reasons"])
+        be = _load("gate_pass.json")
+        be["series"] = "BE"
+        be["mandate"] = {"allow_sme": False}
+        self.assertEqual(assess_gate(be)["gate"], "PASS")
+        muhurat = _load("gate_pass.json")
+        muhurat["muhurat"] = True
+        muhurat["mandate"] = {"allow_muhurat": False}
+        self.assertIn("The mandate does not allow a Muhurat session.", assess_gate(muhurat)["reasons"])
+        loss = _load("gate_pass.json")
+        loss["daily_loss_limit_inr"] = 6000
+        loss["mandate"] = {"daily_loss_limit_inr": 5000}
+        self.assertIn("The plan loss limit is above the mandate.", assess_gate(loss)["reasons"])
+
+    def test_book_quotes_the_open_row_and_does_not_resize(self):
+        payload = read_book(_load("book.json"))
+        self.assertEqual(_one(payload, "gross_inr")["value"], 4000)
+        self.assertEqual(_one(payload, "net_inr")["value"], 4000)
+        self.assertEqual(_one(payload, "weight_pct")["value"], 4)
+        self.assertEqual(_one(payload, "days_to_exit")["value"], 0.01)
+        self.assertEqual(_one(payload, "open_risk_inr")["value"], 1000)
+        self.assertEqual(_one(payload, "sector_weight_pct")["detail"], "IT")
+        self.assertEqual(_one(payload, "sector_weight_pct")["value"], 4)
+        self.assertFalse(any(row["field"] == "cap_breach" for row in payload["items"]))
+        tight = _load("book.json")
+        tight["mandate"]["book_inr"] = 1000
+        breached = read_book(tight)
+        names = [row["value"] for row in breached["items"] if row["field"] == "cap_breach"]
+        self.assertIn("TCS", names)
+        self.assertIn("IT", names)
+        short = _load("book.json")
+        short["entries"][0]["side"] = "short"
+        signed = read_book(short)
+        self.assertEqual(_one(signed, "gross_inr")["value"], 4000)
+        self.assertEqual(_one(signed, "net_inr")["value"], -4000)
+        dry = _load("book.json")
+        dry["prices"][0]["volume"] = 0
+        self.assertFalse(_one(read_book(dry), "days_to_exit")["ok"])
+        missing_price = _load("book.json")
+        missing_price["prices"] = []
+        self.assertFalse(_one(read_book(missing_price), "gross_inr")["ok"])
+        outside = _load("book.json")
+        outside["entries"][0]["symbol"] = "AAPL"
+        self.assertFalse(_one(read_book(outside), "gross_inr")["ok"])
+
+    def test_check_brief_thesis_short_and_ic(self):
+        self.assertTrue(check_brief(fixtures_dir() / "thesis_ok.md", "thesis")["ok"])
+        self.assertTrue(check_brief(fixtures_dir() / "short_ok.md", "short")["ok"])
+        self.assertTrue(check_brief(fixtures_dir() / "ic_ok.md", "ic")["ok"])
+        bad = check_brief(fixtures_dir() / "ic_bad.md", "ic")
+        self.assertFalse(bad["ok"])
+        self.assertIn("The decision line is not empty.", bad["problems"])
+        text = (fixtures_dir() / "thesis_ok.md").read_text(encoding="utf-8")
+        text = text.replace("## Claim\n", "## Claim\n- buy the name source: fixture:thesis\n", 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "thesis_buy.md"
+            path.write_text(text, encoding="utf-8")
+            verdict = check_brief(path, "thesis")
+        self.assertFalse(verdict["ok"])
+        self.assertTrue(any("buy or sell verdict" in problem for problem in verdict["problems"]))
+
+    def test_new_official_files_and_session_folder(self):
+        session = "2026-11-06"
+        delivery = parse_official("delivery", fixtures_dir() / "official_delivery.csv", session, "fixture:official_delivery.csv")
+        self.assertEqual(_one(delivery, "delivery_qty", "RELIANCE")["value"], 620)
+        self.assertFalse(_one(delivery, "delivery_pct", "RELIANCE")["ok"])
+        members = parse_official("constituents", fixtures_dir() / "official_constituents.csv", session, "fixture:official_constituents.csv")
+        self.assertEqual(_one(members, "index_member", "INFY")["value"], "NIFTYIT")
+        self.assertFalse(_one(members, "weight_pct", "INFY")["ok"])
+        self.assertEqual(_one(members, "weight_pct", "TCS")["value"], 12.5)
+        pledge = parse_official("pledge", fixtures_dir() / "official_pledge.csv", session, "fixture:official_pledge.csv")
+        self.assertFalse(_one(pledge, "promoter_pledge_pct", "TCS")["ok"])
+        self.assertIsNone(_one(pledge, "promoter_pledge_pct", "TCS")["value"])
+        held = parse_official("shareholding", fixtures_dir() / "official_shareholding.csv", session, "fixture:official_shareholding.csv")
+        self.assertEqual(_one(held, "promoter_holding_pct", "TCS")["value"], 71.77)
+        asm = parse_official("asm", fixtures_dir() / "official_asm.csv", session, "fixture:official_asm.csv")
+        self.assertEqual(_one(asm, "asm_stage", "SAIL")["value"], "I")
+        mwpl = parse_official("mwpl", fixtures_dir() / "official_mwpl.csv", session, "fixture:official_mwpl.csv")
+        self.assertEqual(_one(mwpl, "oi_pct_of_mwpl", "SAIL")["value"], 96)
+        bulk = parse_official("bulk_deals", fixtures_dir() / "official_bulk.csv", session, "fixture:official_bulk.csv")
+        self.assertEqual(_one(bulk, "bulk_qty", "RELIANCE")["value"], 100000)
+        folder = build_session_pack(fixtures_dir() / "session_sample", symbol="RELIANCE")
+        self.assertIn("cash_bhav", folder["files_found"])
+        self.assertIn("ban", folder["files_missing"])
+        self.assertEqual(_one(folder, "close", "RELIANCE")["value"], 112)
+        self.assertFalse(any(row["field"] == "named_fo_ban" for row in folder["items"]))
+        with tempfile.TemporaryDirectory() as tmp:
+            ban_dir = Path(tmp) / "2026-11-06"
+            ban_dir.mkdir()
+            (ban_dir / "ban.csv").write_text("symbol\nSAIL\n", encoding="utf-8")
+            (ban_dir / "asm.csv").write_text("symbol,stage\nSAIL,I\n", encoding="utf-8")
+            named = build_session_pack(ban_dir, symbol="SAIL")
+            self.assertTrue(_one(named, "named_fo_ban", "SAIL")["value"])
+            self.assertEqual(_one(named, "named_asm_stage", "SAIL")["value"], "I")
+            self.assertEqual(named["session_date"], "2026-11-06")
+            other = build_session_pack(ban_dir, symbol="RELIANCE")
+            self.assertFalse(any(row["field"] == "named_fo_ban" for row in other["items"]))
+
+    def test_stamp_needs_a_state_and_bse_cash_has_a_rate(self):
+        on = date(2026, 11, 6)
+        found = stamp_rate("stamp_equity_delivery", "Maharashtra", on)
+        self.assertTrue(found["ok"])
+        self.assertEqual(found["rate"], 0.00015)
+        self.assertEqual(found["state"], "Maharashtra")
+        self.assertFalse(stamp_rate("stamp_equity_delivery", None, on)["ok"])
+        self.assertFalse(stamp_rate("stamp_equity_delivery", "Atlantis", on)["ok"])
+        self.assertFalse(charge_rate("stamp_duty", on)["ok"])
+        sized = _load("size_reliance.json")
+        sized["buyer_state"] = "Maharashtra"
+        stamped = size_position(sized)
+        self.assertEqual(_one(stamped, "quantity")["value"], 333)
+        self.assertEqual(_one(stamped, "stamp_inr")["value"], 1.12)
+        bse = _load("size_reliance.json")
+        bse["exchange"] = "BSE"
+        self.assertEqual(_one(size_position(bse), "exchange_txn_inr")["value"], 2.8)
+        futures = _load("size_reliance.json")
+        futures["exchange"] = "BSE"
+        futures["horizon"] = "futures"
+        futures["lot_size"] = 250
+        refused = size_position(futures)
+        self.assertFalse(_one(refused, "exchange_txn_inr")["ok"])
+        self.assertIn("this horizon", _one(refused, "exchange_txn_inr")["detail"])
+
+    def test_backtest_adjustment_and_stamp_stay_beside_the_net(self):
+        demo = run_backtest(_load("backtest_reliance.json"))
+        self.assertEqual(_one(demo, "net_pnl_inr")["value"], 39.71)
+        empty = _load("backtest_reliance.json")
+        empty["actions"] = []
+        self.assertEqual(_one(run_backtest(empty), "net_pnl_inr")["value"], 39.71)
+        adjusted = _load("backtest_reliance.json")
+        adjusted["actions"] = [{"price_factor": 0.5, "ex_date": "2026-11-10"}]
+        adjusted["trades"][0]["entry_time"] = "2026-11-01T09:20:00+05:30"
+        priced = run_backtest(adjusted)
+        self.assertEqual(_one(priced, "net_pnl_inr")["value"], 599.71)
+        broken = _load("backtest_reliance.json")
+        broken["actions"] = [{"ex_date": "2026-11-10"}]
+        broken["trades"][0]["entry_time"] = "2026-11-01T09:20:00+05:30"
+        failed = run_backtest(broken)
+        self.assertFalse(any(row["field"] == "net_pnl_inr" and row["ok"] for row in failed["items"]))
+        stamped = _load("backtest_reliance.json")
+        stamped["buyer_state"] = "Maharashtra"
+        beside = run_backtest(stamped)
+        self.assertEqual(_one(beside, "net_pnl_inr")["value"], 39.71)
+        self.assertEqual(_one(beside, "stamp_inr")["value"], 0.03)
+        unknown = _load("backtest_reliance.json")
+        unknown["buyer_state"] = "Atlantis"
+        blank = run_backtest(unknown)
+        self.assertEqual(_one(blank, "net_pnl_inr")["value"], 39.71)
+        self.assertFalse(_one(blank, "stamp_inr")["ok"])
+        derivative = _load("backtest_reliance.json")
+        derivative["exchange"] = "BSE"
+        derivative["horizon"] = "futures"
+        derivative["trades"][0]["horizon"] = "futures"
+        fo = run_backtest(derivative)
+        self.assertFalse(_one(fo, "exchange_txn_inr")["ok"])
+
+    def test_full_cost_stays_blank_when_a_closed_row_has_no_exchange_rate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "journal.jsonl"
+            plan = {
+                "event": "plan",
+                "id": "FUT-1",
+                "logged_at_ist": "2026-11-06T09:20:00+05:30",
+                "symbol": "RELIANCE",
+                "exchange": "BSE",
+                "series": "EQ",
+                "setup": "opening_range_break",
+                "horizon": "futures",
+                "planned_risk_inr": 1000,
+                "source": "fixture:journal",
+                "outcome": None,
+                "entry": 100,
+                "qty": 1,
+                "side": "long",
+            }
+            outcome = {
+                "event": "outcome",
+                "id": "FUT-1",
+                "outcome": "target_hit",
+                "logged_at_ist": "2026-11-06T15:20:00+05:30",
+                "source": "fixture:journal",
+                "realized_r": 1,
+                "exit_price": 110,
+            }
+            path.write_text(json.dumps(plan) + "\n" + json.dumps(outcome) + "\n", encoding="utf-8")
+            payload = review_journal(path, as_of="2026-11-06")
+        self.assertTrue(_one(payload, "net_after_stt_inr")["ok"])
+        self.assertFalse(_one(payload, "net_after_charges_inr")["ok"])
+
+    def test_holiday_list_is_stale_after_the_review_horizon(self):
+        self.assertTrue(calendar_status(date(2026, 11, 6))["ok"])
+        self.assertTrue(calendar_status(date(2027, 5, 5))["ok"])
+        self.assertFalse(calendar_status(date(2027, 5, 6))["ok"])
+        self.assertFalse(calendar_status(date(2027, 6, 1))["ok"])
+        self.assertFalse(is_trading_day(date(2027, 5, 6)))
+        self.assertEqual(next_trading_day("2026-11-06").isoformat(), "2026-11-08")
+        with self.assertRaises(ValueError):
+            next_trading_day("2027-05-05")
+        with self.assertRaises(ValueError):
+            next_trading_day("2027-06-01")
+        stale = session_state(datetime(2027, 6, 1, 10, 0, tzinfo=IST))
+        self.assertEqual(stale["phase"], "closed")
+        self.assertFalse(stale["calendar_ok"])
+
+    def test_cli_wires_book_mandate_briefs_and_session_pack(self):
+        with redirect_stdout(io.StringIO()) as buf:
+            code = main(["book", "--demo"])
+        self.assertEqual(code, 0)
+        self.assertEqual(_one(json.loads(buf.getvalue()), "gross_inr")["value"], 4000)
+        with redirect_stdout(io.StringIO()) as buf:
+            code = main(["gate", "--demo", "--mandate", str(ROOT / "data" / "mandate.json")])
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(buf.getvalue())["gate"], "PASS")
+        with redirect_stdout(io.StringIO()) as buf:
+            code = main(["check-brief", str(fixtures_dir() / "thesis_ok.md"), "--kind", "thesis"])
+        self.assertEqual(code, 0)
+        self.assertTrue(json.loads(buf.getvalue())["ok"])
+        with redirect_stdout(io.StringIO()) as buf:
+            code = main(["fetch", "--kind", "constituents", "--demo"])
+        self.assertEqual(code, 0)
+        self.assertEqual(_one(json.loads(buf.getvalue()), "weight_pct", "TCS")["value"], 12.5)
+        with redirect_stdout(io.StringIO()) as buf:
+            code = main(["session-pack", "--demo"])
+        self.assertEqual(code, 0)
+        packed = json.loads(buf.getvalue())
+        self.assertEqual(_one(packed, "close", "RELIANCE")["value"], 112)
+        self.assertIn("ban", packed["files_missing"])
+        with redirect_stdout(io.StringIO()):
+            code = main(["session-pack"])
+        self.assertEqual(code, 2)
 
 
 if __name__ == "__main__":
