@@ -21,7 +21,7 @@ $env:PYTHONPATH = "src"
 python -m indian_market.cli desk "the user question"
 ```
 
-2. When `ok` is true, open the named skill and follow it. Use its command. Do not compute the figure in this skill. A setup card, the morning chain, a journal review, and an official file are separate skills.
+2. When `ok` is true, open the named skill and follow it. Use its command when `command` is not `none`. A `none` command has no calculator. Follow that skill and do not invent a subcommand. Do not compute the figure in this skill. A setup card, the morning chain, a journal review, an official file, and the mandate, thesis, short case, book risk, pair note, and IC note are separate skills.
 3. When `error` is `ambiguous`, ask which of `candidates` the user wants. Do not pick one.
 4. When `error` is `no_route`, say this pack does not have that job. Do not draft an order. A journal line, a scan row, or a ticket exists only when that skill's command wrote it.
 5. A symbol `resolve` marks `outside_universe` stops here. Say NSE and BSE only.

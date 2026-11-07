@@ -112,6 +112,18 @@ _RULES: tuple[tuple[str, str, int], ...] = (
     ("bhav copy", "official-files", 8),
     ("official file", "official-files", 8),
     ("series report", "official-files", 8),
+    ("trading mandate", "mandate", 9),
+    ("book mandate", "mandate", 9),
+    ("investment thesis", "thesis-memo", 9),
+    ("thesis memo", "thesis-memo", 9),
+    ("short case", "short-case", 9),
+    ("short thesis", "short-case", 9),
+    ("book risk", "book-risk", 9),
+    ("portfolio risk", "book-risk", 9),
+    ("pair note", "pair-note", 9),
+    ("pair trade", "pair-note", 9),
+    ("investment committee", "ic-note", 9),
+    ("ic note", "ic-note", 9),
 )
 
 _COMMAND = {
@@ -147,6 +159,12 @@ _COMMAND = {
     "morning-chain": "morning",
     "journal-review": "journal-review",
     "official-files": "fetch",
+    "mandate": "none",
+    "thesis-memo": "none",
+    "short-case": "none",
+    "book-risk": "none",
+    "pair-note": "none",
+    "ic-note": "none",
 }
 
 
@@ -186,9 +204,14 @@ def route_request(text: str) -> dict:
             "detail": "More than one skill matches. Ask which job, then run that skill.",
         }
     skill = winners[0]
+    command = _COMMAND[skill]
+    if command == "none":
+        detail = "Open that skill and follow it. It has no calculator. This router does not compute the figure."
+    else:
+        detail = "Open that skill and run its command. This router does not compute the figure."
     return {
         "ok": True,
         "skill": skill,
-        "command": _COMMAND[skill],
-        "detail": "Open that skill and run its command. This router does not compute the figure.",
+        "command": command,
+        "detail": detail,
     }

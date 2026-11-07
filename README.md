@@ -45,6 +45,12 @@ Phases 0 through 6 are shipped. Open this repo in Claude Code and the skills in 
 | `morning-chain` | Premarket, surveillance, scan, one setup, size, and the gate. BLOCK writes no ticket |
 | `journal-review` | Hit rate, average R, and net after STT. Open rows stay out of the hit rate |
 | `official-files` | Parse a bhavcopy, ban file, or contract file. A series report does not rewrite the starter book |
+| `mandate` | Book rules the user supplies. No invented limit |
+| `thesis-memo` | One claim, with the variant, the catalyst, and the kill criteria left blank where the file is blank |
+| `short-case` | The other side of a claim, and whether a short can be expressed |
+| `book-risk` | The open book against the mandate. Does not resize |
+| `pair-note` | One name against another, or against its sector index. No estimated hedge |
+| `ic-note` | One page assembled from the skills above. The decision stays blank |
 
 A US ticker, a crypto name, or an MCX commodity is refused. A name listed on both exchanges defaults to NSE EQ. Say BSE, pass `RELIANCE.BO`, or pass the 6-digit scrip code when you want the BSE listing.
 
@@ -238,6 +244,19 @@ The NSE equity, futures, and options transaction charges, and the SEBI turnover 
 | `morning-chain` | One pack from surveillance through the gate. No ticket after BLOCK. |
 | `journal-review` | Hit rate, average R, net after STT, open planned risk. |
 | `official-files` | Parse an exchange file, or report series coverage. No invented BSE code. |
+
+### The book
+
+**Shipped as skills.** These six do not add a calculator and do not end in a buy or a sell. Limits, cases, and hedge ratios stay blank until the user supplies them. Gross, net, and days-to-exit are quoted only when the user already wrote them.
+
+| Skill | Job |
+| --- | --- |
+| `mandate` | Horizon, direction, caps, and what the book refuses. |
+| `thesis-memo` | Evidence, variant, catalyst path, three cases, kill criteria, pre-mortem. |
+| `short-case` | How the claim fails, and whether that side is expressible. |
+| `book-risk` | Concentration, open planned risk, overlap, liquidity, one named stress. |
+| `pair-note` | A relative claim inside NSE and BSE. |
+| `ic-note` | The page a person reads. The decision line stays empty. |
 
 NSE currency derivatives and NSE commodity derivatives stay out unless the scope is explicitly widened. MCX and NCDEX stay out.
 

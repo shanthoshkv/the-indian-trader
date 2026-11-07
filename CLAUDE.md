@@ -48,5 +48,11 @@ python -m indian_market.cli resolve RELIANCE
 | Morning chain | morning-chain |
 | Journal review, hit rate | journal-review |
 | Bhav copy, official file, series report | official-files |
+| Trading mandate, book mandate | mandate |
+| Investment thesis, thesis memo | thesis-memo |
+| Short case, short thesis | short-case |
+| Book risk, portfolio risk | book-risk |
+| Pair note, pair trade | pair-note |
+| Investment committee, IC note | ic-note |
 
-`fetch` parses a file you have, or tries one public URL. A failed download leaves the field blank. Do not fill it from memory. A command with no fixture leaves the field blank. Do not invent an order. A journal line, a scan row, or a ticket exists only when that command wrote it. BLOCK stops the chain. A backtest that ignores STT has no net. The exchange transaction charge is not inside that net. Stamp duty and the BSE transaction rate stay blank.
+`mandate`, `thesis-memo`, `short-case`, `book-risk`, `pair-note`, and `ic-note` have no calculator. A limit, a case, or a hedge ratio the user did not supply stays blank. They do not end in a buy or a sell. `fetch` parses a file you have, or tries one public URL. A failed download leaves the field blank. Do not fill it from memory. A command with no fixture leaves the field blank. Do not invent an order. A journal line, a scan row, or a ticket exists only when that command wrote it. BLOCK stops the chain. A backtest that ignores STT has no net. The exchange transaction charge is not inside that net. Stamp duty and the BSE transaction rate stay blank.

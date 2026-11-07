@@ -473,6 +473,12 @@ class SkillLayoutTests(unittest.TestCase):
             "morning-chain",
             "journal-review",
             "official-files",
+            "mandate",
+            "thesis-memo",
+            "short-case",
+            "book-risk",
+            "pair-note",
+            "ic-note",
         }
         for name in expected:
             text = (root / name / "SKILL.md").read_text(encoding="utf-8")
@@ -965,6 +971,14 @@ class Phase6Tests(unittest.TestCase):
         self.assertEqual(route_request("post result")["skill"], "post-result")
         self.assertEqual(route_request("morning chain")["skill"], "morning-chain")
         self.assertEqual(route_request("parse the bhav copy")["skill"], "official-files")
+        self.assertEqual(route_request("trading mandate")["skill"], "mandate")
+        self.assertEqual(route_request("investment thesis")["skill"], "thesis-memo")
+        self.assertEqual(route_request("short case")["skill"], "short-case")
+        self.assertEqual(route_request("book risk")["skill"], "book-risk")
+        self.assertEqual(route_request("pair trade")["skill"], "pair-note")
+        self.assertEqual(route_request("investment committee")["skill"], "ic-note")
+        self.assertEqual(route_request("investment committee")["command"], "none")
+        self.assertEqual(route_request("risk gate")["skill"], "risk-gate")
         self.assertEqual(route_request("place an order")["error"], "no_route")
         vague = route_request("what is india vix")
         self.assertEqual(vague["error"], "ambiguous")
