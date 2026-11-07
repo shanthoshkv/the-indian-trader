@@ -1,0 +1,13 @@
+{
+  "session_date": "2026-11-05",
+  "exchange": "NSE",
+  "source": "fixture:nse-breadth",
+  "advances": 1200,
+  "declines": 800,
+  "unchanged": 50,
+  "contributors": [
+    {"symbol": "RELIANCE", "points": 50},
+    {"symbol": "TCS", "points": 20},
+    {"symbol": "HDFCBANK", "points": 10}
+  ]
+}

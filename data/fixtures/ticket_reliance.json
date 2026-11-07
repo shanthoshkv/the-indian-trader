@@ -1,0 +1,18 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "as_of_ist": "2026-11-06T09:30:00+05:30",
+  "source": "fixture:ticket",
+  "id": "RELIANCE-2026-11-06T09:20:00+05:30",
+  "horizon": "intraday_cash",
+  "product": "MIS",
+  "side": "buy",
+  "quantity": 333,
+  "gate": "PASS",
+  "order_type": "LIMIT",
+  "limit_price": 112,
+  "validity": "DAY",
+  "human_yes": false
+}

@@ -1,0 +1,27 @@
+{
+  "session_date": "2026-11-05",
+  "as_of_ist": "2026-11-06T08:00:00+05:30",
+  "source": "fixture:nse-fii-dii",
+  "cash": {"fii_cash_crore": -100.0, "dii_cash_crore": 80.0},
+  "participant_oi": [
+    {
+      "participant": "FII",
+      "future_long": 100,
+      "future_short": 140,
+      "call_long": 20,
+      "call_short": 10,
+      "put_long": 30,
+      "put_short": 12
+    }
+  ],
+  "deals": [
+    {
+      "kind": "bulk",
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "qty": 100000,
+      "price": 1500.0,
+      "client": "Example fund"
+    }
+  ]
+}

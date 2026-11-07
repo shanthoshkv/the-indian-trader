@@ -6,15 +6,34 @@ The version line is the state of the skill pack. Phases that are not listed as s
 
 ## [Unreleased]
 
-### Planned
+### Added
 
-- Phase 2: `premarket-brief`, `institutional-flows`, `market-breadth`, `sector-rotation`, `options-positioning`, `levels-plan`, `indian-desk`
-- Phase 3: `fundamentals`, `concall-reader`, `corporate-actions`, `results-calendar`
-- Phase 4: `trade-plan`, `position-size`, `risk-gate`, `trade-journal`
-- Phase 5: `scanner`, `backtest-india`, `paper-ticket`
-- Live NSE and BSE file downloads, behind the same evidence JSON the skills already require
+- Phase 2 skills and commands: `premarket`, `flows`, `breadth`, `rotation`, `options`, `levels`, and `desk`
+- Phase 3 skills and commands: `fundamentals`, `concall`, `actions`, and `results`
+- Concall notes can be checked with `check-brief --kind concall`
+- Sector indexes used by rotation: Nifty IT, Auto, FMCG, Metal, Pharma, and BSE Auto
+- A stock symbol is no longer given Nifty's weekly expiry
+- Phase 4 skills and commands: `plan`, `size`, `gate`, `journal-show`, `journal-add`, `journal-outcome`
+- Phase 5 skills and commands: `scan`, `backtest`, `ticket`
+- Append-only local journal. `data/journal.jsonl` is gitignored. `--demo` does not write it
+- A backtest with `include_stt` not true exits 2 and publishes no net
+- A paper ticket stores a human yes in the journal only when the risk gate is PASS. Nothing is sent to a broker
+- Phase 6 setup cards: `setup --name` for opening range, previous day, VWAP hold, delivery and relative strength, sector leader, and post-result
+- `morning` runs surveillance, a named-list scan, one setup, size, and the gate. BLOCK writes no ticket
+- `journal-review` reports hit rate, average realized R, and net after STT. `journal-outcome` stores `--realized-r` and `--exit-price`. `--demo` does not write
+- `fetch` parses a local official file or tries one `--url`. A failed download leaves the field blank and is cached only after a successful read, under `data/cache/`
+- `series` reports verified, unverified, and refused names and does not rewrite `data/symbols.json`
+- NSE transaction charges from NSE/FA/73061 (27 February 2026) and the SEBI turnover fee sit beside STT. They are not inside the backtest net. Stamp duty and the BSE transaction rate stay blank
+- Futures and options plans stay incomplete without expiry and lot size. Options also need a strike and CE or PE
+- The risk gate can block a Muhurat session, a tight rupee circuit, an ex-date, a record date, a board meeting, or open planned risk at the daily limit. Those checks run only when the pack supplies the key
 
-None of these skills exist in the tree yet. Asking for them should not produce a made-up flow or a made-up option chain.
+### Still blank
+
+- Stamp duty has no single rate on the sheet
+- BSE has no transaction rate on the sheet
+- A public download that fails is a blank field, not a guessed price
+
+A command with no fixture still exits 2 and leaves the field blank. Asking the desk to place an order stays `no_route`. No command calls a broker.
 
 ## [0.1.0] - 2026-11-06
 

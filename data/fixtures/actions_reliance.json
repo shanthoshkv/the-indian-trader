@@ -1,0 +1,22 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "source": "fixture:nse-announcements",
+  "as_of_ist": "2026-11-06T08:00:00+05:30",
+  "actions": [
+    {
+      "kind": "dividend",
+      "headline": "Interim dividend Rs 5 per share",
+      "ex_date": "2026-11-14",
+      "session_date": "2026-11-02",
+      "source": "fixture:nse-announcement-dividend"
+    },
+    {
+      "kind": "board_meeting",
+      "headline": "Board meeting to consider results",
+      "session_date": "2026-11-02",
+      "source": "NSE/RELIANCE/2026/board"
+    }
+  ]
+}

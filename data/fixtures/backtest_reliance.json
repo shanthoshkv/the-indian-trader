@@ -1,0 +1,21 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "source": "fixture:backtest",
+  "horizon": "intraday_cash",
+  "include_stt": true,
+  "slippage_ticks": 1,
+  "tick_size": 1,
+  "as_of": "2026-11-24",
+  "trades": [
+    {
+      "side": "long",
+      "entry": 112,
+      "exit": 118,
+      "qty": 10,
+      "exit_time": "2026-11-24T15:20:00+05:30",
+      "expiry_date": "2026-11-24"
+    }
+  ]
+}

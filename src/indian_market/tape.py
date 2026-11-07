@@ -12,10 +12,24 @@ def _hhmm(value: str) -> tuple[int, int]:
     return int(hour), int(minute)
 
 
-def _in_opening_range(stamp: str) -> bool:
+def in_opening_range(stamp: str) -> bool:
+    """09:15 inclusive to 09:30 exclusive IST. The 09:30 bar is outside the range."""
     hour, minute = _hhmm(stamp)
     minutes = hour * 60 + minute
     return 9 * 60 + 15 <= minutes < 9 * 60 + 30
+
+
+def typical_vwap(bars: list[dict[str, Any]]) -> float | None:
+    """Volume-weighted typical price, (high + low + close) / 3, on the bars supplied."""
+    turned = 0.0
+    volume = 0.0
+    for bar in bars:
+        typical = (bar["h"] + bar["l"] + bar["c"]) / 3.0
+        turned += typical * bar["v"]
+        volume += bar["v"]
+    if not volume:
+        return None
+    return turned / volume
 
 
 def read_tape(pack: dict[str, Any]) -> dict[str, Any]:
@@ -120,13 +134,7 @@ def read_tape(pack: dict[str, Any]) -> dict[str, Any]:
             )
         )
     else:
-        turned = 0.0
-        volume = 0.0
-        for bar in bars:
-            typical = (bar["h"] + bar["l"] + bar["c"]) / 3.0
-            turned += typical * bar["v"]
-            volume += bar["v"]
-        vwap = turned / volume if volume else None
+        vwap = typical_vwap(bars)
         items.append(
             evidence(
                 field="vwap",
@@ -136,7 +144,7 @@ def read_tape(pack: dict[str, Any]) -> dict[str, Any]:
                 **common,
             )
         )
-        opening = [bar for bar in bars if _in_opening_range(bar["t"])]
+        opening = [bar for bar in bars if in_opening_range(bar["t"])]
         if opening:
             items.append(
                 evidence(

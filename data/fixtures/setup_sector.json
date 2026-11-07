@@ -1,0 +1,16 @@
+{
+  "symbol": "INFY",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "source": "fixture:sector",
+  "sector": "NIFTYIT",
+  "leader": "NIFTYIT",
+  "last": 1500,
+  "prev_low": 1460,
+  "delivery_pct": 60,
+  "min_delivery_pct": 50,
+  "rs": 4,
+  "min_rs": 0,
+  "surveillance": {"clearance": "clear", "source": "fixture:surveillance", "session_date": "2026-11-06"}
+}

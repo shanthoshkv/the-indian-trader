@@ -1,0 +1,28 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2025-10-17",
+  "source": "fixture:reliance-q2fy26-concall",
+  "fiscal_period": "Q2 FY2026",
+  "excerpts": [
+    {
+      "topic": "guidance",
+      "speaker": "CFO",
+      "text": "Retail revenue growth for the year is guided in the mid teens.",
+      "source": "fixture:concall#12:04"
+    },
+    {
+      "topic": "capex",
+      "speaker": "CFO",
+      "text": "New energy capex for the year stays within the figure given in the annual report.",
+      "source": "fixture:concall#18:22"
+    },
+    {
+      "topic": "declined",
+      "speaker": "CFO",
+      "text": "We will not comment on the timing of a retail stake sale.",
+      "source": "fixture:concall#27:10"
+    }
+  ]
+}

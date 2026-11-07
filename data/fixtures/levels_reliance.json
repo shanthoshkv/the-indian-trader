@@ -1,0 +1,21 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "source": "fixture:nse-cm-bhavcopy",
+  "freshness": "previous_session",
+  "daily_bars": [
+    {"date": "2026-10-30", "high": 200, "low": 190, "close": 195},
+    {"date": "2026-11-02", "high": 110, "low": 104, "close": 108},
+    {"date": "2026-11-03", "high": 112, "low": 106, "close": 109},
+    {"date": "2026-11-04", "high": 111, "low": 107, "close": 110},
+    {"date": "2026-11-05", "high": 114, "low": 109, "close": 112},
+    {"date": "2026-11-06", "high": 130, "low": 120, "close": 125}
+  ],
+  "bars_1m": [
+    {"t": "09:15", "h": 112.4, "l": 111.6, "c": 112.0, "v": 100},
+    {"t": "09:29", "h": 113.0, "l": 112.0, "c": 112.5, "v": 100},
+    {"t": "09:30", "h": 120.0, "l": 100.0, "c": 119.0, "v": 100}
+  ]
+}

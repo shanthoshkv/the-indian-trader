@@ -61,6 +61,13 @@ def previous_trading_day(day: date | datetime | str, exchange: str = "NSE") -> d
     return cursor
 
 
+def next_trading_day(day: date | datetime | str, exchange: str = "NSE") -> date:
+    cursor = _as_date(day) + timedelta(days=1)
+    while not is_trading_day(cursor, exchange):
+        cursor += timedelta(days=1)
+    return cursor
+
+
 def _clock(now: datetime) -> time:
     return now.astimezone(IST).time().replace(microsecond=0)
 

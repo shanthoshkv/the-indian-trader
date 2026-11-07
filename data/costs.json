@@ -66,6 +66,38 @@
       "side": "buy",
       "effective_from": "2020-07-01",
       "source": "Stamp duty is set by the state and charged on the buy side. Do not apply one national rate."
+    },
+    {
+      "id": "nse_txn_equity",
+      "label": "NSE cash transaction charge, each side",
+      "rate": 0.0000307,
+      "side": "each",
+      "effective_from": "2026-03-01",
+      "source": "NSE/FA/73061 dated 27 February 2026. Cash market total Rs 307 per crore each side from 1 March 2026. BSE is not this rate."
+    },
+    {
+      "id": "nse_txn_futures",
+      "label": "NSE equity futures transaction charge, each side",
+      "rate": 0.0000183,
+      "side": "each",
+      "effective_from": "2026-03-01",
+      "source": "NSE/FA/73061 dated 27 February 2026. Equity futures total Rs 183 per crore each side from 1 March 2026."
+    },
+    {
+      "id": "nse_txn_options_premium",
+      "label": "NSE equity options transaction charge on premium, each side",
+      "rate": 0.0003553,
+      "side": "each",
+      "effective_from": "2026-03-01",
+      "source": "NSE/FA/73061 dated 27 February 2026. Options total Rs 3,553 per crore of premium each side from 1 March 2026."
+    },
+    {
+      "id": "sebi_turnover",
+      "label": "SEBI turnover fee, each side",
+      "rate": 0.000001,
+      "side": "each",
+      "effective_from": "2026-03-01",
+      "source": "Rs 10 per crore of turnover. Confirm the current SEBI fee schedule at each review."
     }
   ]
 }

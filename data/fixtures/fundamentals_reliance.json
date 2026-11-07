@@ -1,0 +1,32 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "source": "fixture:reliance-results",
+  "as_of_ist": "2026-10-17T20:00:00+05:30",
+  "quarters": [
+    {
+      "period": "Q2 FY2026",
+      "period_end": "2025-09-30",
+      "sales": 1000,
+      "pat": 100,
+      "eps": 10
+    }
+  ],
+  "annual": [
+    {
+      "fiscal_year": "FY2025",
+      "period_end": "2025-03-31",
+      "sales": 4000,
+      "pat": 400,
+      "equity": 2000,
+      "debt": 500
+    }
+  ],
+  "price": {"value": 250, "session_date": "2026-11-05", "source": "fixture:nse-cm-bhavcopy"},
+  "pledge": {"pct": 1.2, "as_of": "2025-09-30", "source": "fixture:shareholding"},
+  "shareholding": [
+    {"holder": "promoter", "pct": 50.3, "as_of": "2025-09-30"},
+    {"holder": "public", "pct": 49.7, "as_of": "2025-09-30"}
+  ]
+}

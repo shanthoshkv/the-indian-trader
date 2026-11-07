@@ -20,6 +20,11 @@ SWOT_HEADINGS = (
     "threats",
     "what would flip",
 )
+CONCALL_HEADINGS = (
+    "guidance",
+    "capex",
+    "declined",
+)
 
 _HEADING = re.compile(r"^#{1,3}\s+(.+?)\s*$", re.MULTILINE)
 _BULLET = re.compile(r"^-\s+(.+)$", re.MULTILINE)
@@ -47,8 +52,8 @@ def check_brief(path: Path, kind: str) -> dict:
     if _VERDICT.search(text) or _STRONG.search(text):
         problems.append("The note contains a buy or sell verdict. Leave the view to the reader.")
 
-    required = RESEARCH_HEADINGS if kind == "research" else SWOT_HEADINGS
-    if kind not in {"research", "swot"}:
+    required = {"research": RESEARCH_HEADINGS, "swot": SWOT_HEADINGS, "concall": CONCALL_HEADINGS}.get(kind)
+    if required is None:
         return {"ok": False, "problems": [f"Unknown kind {kind}."]}
 
     found = {title: body for title, body in _sections(text)}

@@ -1,0 +1,13 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "source": "fixture:post",
+  "results_date": "2026-11-05",
+  "prev_close": 100,
+  "last": 104,
+  "min_gap_pct": 1,
+  "concall": "Management kept the retail capex line unchanged.",
+  "surveillance": {"clearance": "clear", "source": "fixture:surveillance", "session_date": "2026-11-06"}
+}

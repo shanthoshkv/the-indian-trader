@@ -1,0 +1,19 @@
+{
+  "symbol": "NIFTY",
+  "exchange": "NSE",
+  "series": "INDEX",
+  "session_date": "2026-11-05",
+  "as_of_ist": "2026-11-05T18:30:00+05:30",
+  "source": "fixture:nse-fo-bhavcopy",
+  "spot": 25500,
+  "expiry": "2026-11-09",
+  "lot_size": 65,
+  "freeze_qty": 1800,
+  "india_vix_close": 12.4,
+  "india_vix_session": "2026-11-05",
+  "strikes": [
+    {"strike": 25000, "call_oi": 100, "put_oi": 80, "call_oi_change": 1, "put_oi_change": 1},
+    {"strike": 25500, "call_oi": 200, "put_oi": 300, "call_oi_change": 15, "put_oi_change": -5},
+    {"strike": 26000, "call_oi": 50, "put_oi": 40, "call_oi_change": 2, "put_oi_change": 2}
+  ]
+}

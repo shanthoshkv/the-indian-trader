@@ -8,7 +8,7 @@ This is not a SEBI-registered research analyst, and it is not investment advice.
 
 ## What you can ask today
 
-Phase 1 is shipped. Open this repo in Claude Code and the skills in `.claude/skills/` load on their own.
+Phases 0 through 6 are shipped. Open this repo in Claude Code and the skills in `.claude/skills/` load on their own. You pass a JSON file, or you use `--demo`. `fetch --url` can try one public NSE file. A failed download leaves the field blank. Nothing here places an order.
 
 | Skill | Ask it |
 | --- | --- |
@@ -18,6 +18,33 @@ Phase 1 is shipped. Open this repo in Claude Code and the skills in `.claude/ski
 | `market-analysis` | Where is price, delivery, relative strength versus Nifty or Sensex, and futures buildup? |
 | `swot-analysis` | SWOT, where every bullet needs a filing or an exchange source |
 | `tape-reading` | Opening range, VWAP, previous-day high and low, on bars you actually have |
+| `premarket-brief` | Previous close, FII and DII for the last completed session, India VIX, this week's expiries. Pre-open only after 09:00 IST. |
+| `institutional-flows` | FII and DII cash, participant open interest, bulk and block deals, with the session date on every row |
+| `market-breadth` | Advances, declines, new highs and lows, and whether a few names carry the index |
+| `sector-rotation` | Sector index versus Nifty or Sensex over 5, 20, and 60 sessions |
+| `options-positioning` | Nearest listed expiry, put-call ratio, open interest near spot, lot size and freeze quantity from the file |
+| `levels-plan` | Previous-day and weekly range, VWAP, central pivot, opening range |
+| `indian-desk` | Routes the question to one skill. It does not redo the calculation. |
+| `fundamentals` | Quarterly and annual lines, pledge, and shareholding. Fiscal year is April to March. |
+| `concall-reader` | Guidance, capex, and what management declined to answer, from a transcript you supply |
+| `corporate-actions` | Dividend, split, bonus, rights, buyback, OFS, board meeting, ex-date |
+| `results-calendar` | Upcoming board meetings and results for a watchlist |
+| `trade-plan` | Horizon, entry, invalidation, target, and R, from a surveillance result and a tape or levels result already on disk |
+| `position-size` | Quantity from rupee risk, floored to the lot in the file. Charges come from `data/costs.json`. Not an order |
+| `risk-gate` | PASS or BLOCK. BLOCK stops the chain |
+| `trade-journal` | Append-only local log. The demo does not write |
+| `scanner` | Opening-range breaks and high delivery inside a named list. Ban and trade-for-trade are excluded by default |
+| `backtest-india` | Round trips with the dated charge sheet, slippage in ticks, and expiry week. A run that ignores STT fails |
+| `paper-ticket` | Text a person can type into a broker. A human yes is stored in the journal. No broker API |
+| `opening-range-break` | Setup card from the last price and the opening range already on disk |
+| `previous-day-break` | Setup card from the previous-day high and low |
+| `vwap-hold` | Long card when price is above VWAP and the opening-range low holds |
+| `delivery-rs` | Delivery card when delivery and relative strength clear thresholds you supplied |
+| `sector-leader` | That delivery card only when the name's sector is the leader already named |
+| `post-result` | Next-session gap card. The results session itself stays blocked |
+| `morning-chain` | Premarket, surveillance, scan, one setup, size, and the gate. BLOCK writes no ticket |
+| `journal-review` | Hit rate, average R, and net after STT. Open rows stay out of the hit rate |
+| `official-files` | Parse a bhavcopy, ban file, or contract file. A series report does not rewrite the starter book |
 
 A US ticker, a crypto name, or an MCX commodity is refused. A name listed on both exchanges defaults to NSE EQ. Say BSE, pass `RELIANCE.BO`, or pass the 6-digit scrip code when you want the BSE listing.
 
@@ -50,11 +77,34 @@ python -m indian_market.cli analyze --demo
 python -m indian_market.cli tape --demo
 python -m indian_market.cli surveillance --demo --segment fo
 python -m indian_market.cli check-brief data\fixtures\reliance_research_ok.md --kind research
+python -m indian_market.cli premarket --demo
+python -m indian_market.cli flows --demo
+python -m indian_market.cli breadth --demo
+python -m indian_market.cli rotation --demo
+python -m indian_market.cli options --demo
+python -m indian_market.cli levels --demo
+python -m indian_market.cli fundamentals --demo
+python -m indian_market.cli concall --demo
+python -m indian_market.cli actions --demo
+python -m indian_market.cli results --demo
+python -m indian_market.cli plan --demo
+python -m indian_market.cli size --demo
+python -m indian_market.cli gate --demo
+python -m indian_market.cli journal-show --demo
+python -m indian_market.cli scan --demo
+python -m indian_market.cli backtest --demo
+python -m indian_market.cli ticket --demo
+python -m indian_market.cli setup --name orb --demo
+python -m indian_market.cli morning --demo
+python -m indian_market.cli journal-review --demo
+python -m indian_market.cli fetch --kind cash_bhav --demo
+python -m indian_market.cli series --demo
+python -m indian_market.cli desk "put call ratio on nifty"
 ```
 
-`--demo` replays recorded samples in `data/fixtures/`. Those rows are marked `fixture`. They are not a live quote.
+`--demo` replays recorded samples in `data/fixtures/`. Those rows are marked `fixture`. They are not a live quote. `journal-show --demo`, `journal-add --demo`, `journal-outcome --demo`, and `journal-review --demo` read a sample and do not append. A live journal is `data/journal.jsonl`, which is gitignored.
 
-`analyze`, `tape`, and `surveillance` refuse to run with no file. Pass `--fixture path\to\pack.json`, or `--demo`. The JSON shapes are in each skill's `SKILL.md`.
+`analyze`, `tape`, `surveillance`, and the later evidence commands refuse to run with no file. Pass `--fixture path\to\pack.json`, or `--demo`. `fetch` takes `--file`, `--demo`, or `--url`. The JSON shapes are in each skill's `SKILL.md`. `desk` only names the skill. It does not compute the figure. `journal-outcome` appends to a path you pass, and it can store `--realized-r` and `--exit-price`. `ticket --path` stores a human yes only when the gate is PASS and the plan id is already in that journal. No command calls a broker.
 
 Exit `0` means the evidence is usable. Exit `2` means the symbol is outside NSE and BSE, or the evidence file was not provided. That is a finished answer. The model is not supposed to fill the gap from memory.
 
@@ -125,7 +175,7 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 
 ### Phase 2 — The session around the desk
 
-**Not started.** One skill per job. A router that does not reimplement the others.
+**Shipped.** One skill per job. The router does not reimplement the others. Each command still needs a fixture or `--demo`. Nothing here downloads nseindia.com or bseindia.com.
 
 | Skill | Job |
 | --- | --- |
@@ -139,7 +189,7 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 
 ### Phase 3 — Company events
 
-**Not started.**
+**Shipped.** Filings and announcements you already have. A missing excerpt, pledge, or meeting stays blank.
 
 | Skill | Job |
 | --- | --- |
@@ -150,7 +200,7 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 
 ### Phase 4 — A decision, still without sending an order
 
-**Not started.** A plan requires a surveillance result and a tape or levels result already on disk.
+**Shipped.** A plan requires a surveillance result and a tape or levels result already on disk. The gate can BLOCK. BLOCK is a finished answer and stops the chain. The journal appends a line. It does not rewrite earlier lines, and it does not send anything.
 
 | Skill | Job |
 | --- | --- |
@@ -161,7 +211,7 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 
 ### Phase 5 — After the desk has been used
 
-**Not started.** These wait until the earlier phases are used on real questions.
+**Shipped.** The scanner stays inside the named list. The backtest fails when STT is left out. The paper ticket is text for a person to type. A human yes is stored in the journal only after the gate is PASS. No broker API.
 
 | Skill | Job |
 | --- | --- |
@@ -169,18 +219,38 @@ Live downloads from nseindia.com and bseindia.com are **not** in this phase. You
 | `backtest-india` | Costs from the dated charge sheet, slippage in ticks, expiry week called out. A run that ignores STT fails. |
 | `paper-ticket` | A manual ticket you can type into a broker. A human yes is stored in the journal. No broker API and no live order in this phase. |
 
-NSE currency derivatives and NSE commodity derivatives stay out of all five phases unless the scope is explicitly widened. MCX and NCDEX stay out.
+### Phase 6 — Setup cards, the morning chain, and official files
+
+**Shipped.** Each setup card calls the trade plan. A failed trigger is `invalid` or `blocked`, and it is not sized. The morning chain stops before a ticket when the gate is BLOCK. The journal review reports hit rate, average realized R, and net after STT. Open rows stay out of the hit rate.
+
+`fetch` parses a cash bhavcopy, an F&O bhavcopy, a ban file, a contract file, an FII file, or an announcement file you already have. `--url` tries one public file and caches it under `data/cache/`, which is gitignored. Any download error leaves the field blank. The tests do not call the exchange. `series` counts verified, unverified, and refused names and does not rewrite `data/symbols.json`.
+
+The NSE equity, futures, and options transaction charges, and the SEBI turnover fee, are on the charge sheet from 1 March 2026 and are quoted beside STT. They are not inside the backtest net. Stamp duty is still blank. There is no BSE transaction rate on the sheet. GST applies to brokerage plus the exchange transaction charge when brokerage was supplied, and not to STT. Futures and options plans stay incomplete without an expiry and a lot size. An option also needs a strike and CE or PE.
+
+| Skill | Job |
+| --- | --- |
+| `opening-range-break` | Last price through the opening range. A BE series blocks intraday cash. |
+| `previous-day-break` | Last price through the previous-day high or low. |
+| `vwap-hold` | Long only, above VWAP, with the opening-range low held. |
+| `delivery-rs` | Delivery horizon. Both thresholds have to be in the pack. |
+| `sector-leader` | The same delivery test, and only when the name's sector is the named leader. |
+| `post-result` | The next trading session after results. The results day itself is blocked. |
+| `morning-chain` | One pack from surveillance through the gate. No ticket after BLOCK. |
+| `journal-review` | Hit rate, average R, net after STT, open planned risk. |
+| `official-files` | Parse an exchange file, or report series coverage. No invented BSE code. |
+
+NSE currency derivatives and NSE commodity derivatives stay out unless the scope is explicitly widened. MCX and NCDEX stay out.
 
 ## Layout
 
 ```
 .claude/skills/          Claude Code skills (SKILL.md plus references)
-src/indian_market/       Resolver, clock, expiry, costs, surveillance, analysis, tape, brief checker
+src/indian_market/       Resolver, clock, expiry, costs, and the evidence commands
 data/symbols.json        Starter book of NSE symbols and BSE scrip codes
 data/holidays.json       2026 closures and the Muhurat session
 data/costs.json          Dated charge sheet
 data/fixtures/           Recorded samples the tests and --demo use
-evals/phase1.md          Prompts for checking the skills in a fresh session
+evals/                   Prompts for checking the skills in a fresh session
 tests/                   Offline unittest suite. No network.
 ```
 
@@ -191,7 +261,7 @@ $env:PYTHONPATH = "src"
 python -m unittest discover -s tests -v
 ```
 
-The suite covers the universe refusal, the Diwali expiry shift, Muhurat hours, the SAIL ban demo, the opening-range boundary at 09:30, unsourced SWOT and research notes, and the presence of each Phase 1 skill.
+The suite covers the universe refusal, the Diwali expiry shift, Muhurat hours, the SAIL ban demo, the opening-range boundary at 09:30, unsourced SWOT and research notes, the Phase 2 session commands, the Phase 3 filing commands, the Phase 4 plan, size, gate, and journal, the Phase 5 scan, backtest, and paper ticket, the Phase 6 setup cards, morning chain, journal review, and official-file parser, and the presence of each skill. The official-file test uses a fixture or a URL that fails before any network call.
 
 ## Scope
 

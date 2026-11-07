@@ -21,5 +21,32 @@ python -m indian_market.cli resolve RELIANCE
 | Price, delivery, relative strength, buildup | market-analysis |
 | Auditable SWOT | swot-analysis |
 | VWAP, opening range, previous day high and low | tape-reading |
+| Premarket brief, GIFT Nifty, morning expiries | premarket-brief |
+| FII, DII, participant open interest, bulk and block deals | institutional-flows |
+| Advance and decline, new highs, concentration | market-breadth |
+| Sector versus Nifty or Sensex | sector-rotation |
+| Put-call ratio, listed expiry, lot and freeze from the file | options-positioning |
+| Pivot, weekly range, computed levels | levels-plan |
+| Which skill should answer | indian-desk |
+| Results numbers, pledge, shareholding, fiscal year | fundamentals |
+| Concall guidance, capex, declined answers | concall-reader |
+| Dividend, split, bonus, ex-date | corporate-actions |
+| Upcoming results for a watchlist | results-calendar |
+| Trade plan, R multiple | trade-plan |
+| How many shares, rupee risk | position-size |
+| PASS or BLOCK | risk-gate |
+| Journal, setup, outcome | trade-journal |
+| Scan a named list | scanner |
+| Backtest with STT and slippage | backtest-india |
+| Paper ticket, manual ticket | paper-ticket |
+| Opening range strategy, ORB setup | opening-range-break |
+| Previous day break | previous-day-break |
+| VWAP hold | vwap-hold |
+| Delivery and relative strength, as a setup | delivery-rs |
+| Sector leader setup | sector-leader |
+| Post-result setup | post-result |
+| Morning chain | morning-chain |
+| Journal review, hit rate | journal-review |
+| Bhav copy, official file, series report | official-files |
 
-Phases 2 through 5 are specified in README.md and are not implemented. Do not invent a pre-market brief, an FII print, an option chain, or an order.
+`fetch` parses a file you have, or tries one public URL. A failed download leaves the field blank. Do not fill it from memory. A command with no fixture leaves the field blank. Do not invent an order. A journal line, a scan row, or a ticket exists only when that command wrote it. BLOCK stops the chain. A backtest that ignores STT has no net. The exchange transaction charge is not inside that net. Stamp duty and the BSE transaction rate stay blank.

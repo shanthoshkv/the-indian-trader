@@ -25,7 +25,6 @@ _ALIASES = {
     "MIDCPNIFTY": "MIDCPNIFTY",
     "SENSEX": "SENSEX",
     "BANKEX": "BANKEX",
-    "STOCK": "NIFTY",
 }
 
 

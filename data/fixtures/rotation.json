@@ -1,0 +1,43 @@
+{
+  "session_date": "2026-11-05",
+  "source": "fixture:nse-sector-indices",
+  "freshness": "previous_session",
+  "benchmark": {
+    "symbol": "NIFTY",
+    "exchange": "NSE",
+    "bars": [
+      {"date": "2026-10-29", "close": 1000},
+      {"date": "2026-10-30", "close": 1010},
+      {"date": "2026-11-02", "close": 1000},
+      {"date": "2026-11-03", "close": 1020},
+      {"date": "2026-11-04", "close": 1010},
+      {"date": "2026-11-05", "close": 1030}
+    ]
+  },
+  "sectors": [
+    {
+      "symbol": "NIFTYIT",
+      "exchange": "NSE",
+      "bars": [
+        {"date": "2026-10-29", "close": 1000},
+        {"date": "2026-10-30", "close": 1000},
+        {"date": "2026-11-02", "close": 1000},
+        {"date": "2026-11-03", "close": 1000},
+        {"date": "2026-11-04", "close": 1000},
+        {"date": "2026-11-05", "close": 1100}
+      ]
+    },
+    {
+      "symbol": "NIFTYAUTO",
+      "exchange": "NSE",
+      "bars": [
+        {"date": "2026-10-29", "close": 1000},
+        {"date": "2026-10-30", "close": 1000},
+        {"date": "2026-11-02", "close": 1000},
+        {"date": "2026-11-03", "close": 1000},
+        {"date": "2026-11-04", "close": 1000},
+        {"date": "2026-11-05", "close": 900}
+      ]
+    }
+  ]
+}

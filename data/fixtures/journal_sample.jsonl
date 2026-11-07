@@ -1,0 +1,2 @@
+{"event": "plan", "id": "RELIANCE-2026-11-06T09:20:00+05:30", "logged_at_ist": "2026-11-06T09:20:00+05:30", "symbol": "RELIANCE", "exchange": "NSE", "series": "EQ", "setup": "opening_range_break", "horizon": "intraday_cash", "planned_risk_inr": 1000, "source": "fixture:journal", "outcome": null}
+{"event": "outcome", "id": "RELIANCE-2026-11-06T09:20:00+05:30", "outcome": "open", "logged_at_ist": "2026-11-06T15:30:00+05:30", "source": "fixture:journal"}

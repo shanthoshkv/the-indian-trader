@@ -1,0 +1,11 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "source": "fixture:pdh",
+  "last": 116,
+  "prev_high": 114,
+  "prev_low": 109,
+  "surveillance": {"clearance": "clear", "source": "fixture:surveillance", "session_date": "2026-11-06"}
+}

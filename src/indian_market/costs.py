@@ -12,6 +12,33 @@ def load_costs() -> dict:
     return json.loads((data_dir() / "costs.json").read_text(encoding="utf-8"))
 
 
+def charge_rate(item_id: str, as_of: date | None = None) -> dict:
+    """One rate from the dated sheet. A stale review or a null rate does not invent a number."""
+    status = review_status(as_of)
+    on = date.fromisoformat(status["as_of"])
+    if not status["ok"]:
+        return {
+            "ok": False,
+            "detail": f"Charge sheet reviewed {status['last_reviewed']} is stale on {status['as_of']}.",
+        }
+    for item in status["items"]:
+        if item["id"] != item_id:
+            continue
+        if item.get("rate") is None:
+            return {"ok": False, "detail": f"{item_id} has no single rate. {item.get('source', '')}".strip()}
+        effective = date.fromisoformat(item["effective_from"])
+        if effective > on:
+            return {"ok": False, "detail": f"{item_id} is effective from {item['effective_from']}."}
+        return {
+            "ok": True,
+            "id": item_id,
+            "rate": float(item["rate"]),
+            "effective_from": item["effective_from"],
+            "source": item.get("source") or "data/costs.json",
+        }
+    return {"ok": False, "detail": f"No charge named {item_id}."}
+
+
 def review_status(as_of: date | None = None) -> dict:
     sheet = load_costs()
     as_of = as_of or date.today()

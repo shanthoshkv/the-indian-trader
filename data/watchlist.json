@@ -1,0 +1,8 @@
+{
+  "source": "fixture:watchlist",
+  "names": [
+    {"symbol": "RELIANCE", "exchange": "NSE"},
+    {"symbol": "TCS", "exchange": "NSE"},
+    {"symbol": "INFY", "exchange": "NSE"}
+  ]
+}

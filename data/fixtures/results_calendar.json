@@ -1,0 +1,31 @@
+{
+  "as_of": "2026-11-06",
+  "source": "fixture:nse-announcements",
+  "watchlist": ["RELIANCE", "TCS"],
+  "meetings": [
+    {
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "purpose": "financial results",
+      "meeting_date": "2026-11-14",
+      "session_date": "2026-11-02",
+      "source": "fixture:nse-board-reliance"
+    },
+    {
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "purpose": "financial results",
+      "meeting_date": "2026-10-17",
+      "session_date": "2026-10-01",
+      "source": "fixture:nse-board-reliance-old"
+    },
+    {
+      "symbol": "INFY",
+      "exchange": "NSE",
+      "purpose": "financial results",
+      "meeting_date": "2026-11-12",
+      "session_date": "2026-11-01",
+      "source": "fixture:nse-board-infy"
+    }
+  ]
+}

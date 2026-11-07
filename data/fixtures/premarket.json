@@ -1,0 +1,34 @@
+{
+  "session_date": "2026-11-06",
+  "as_of_ist": "2026-11-06T08:40:00+05:30",
+  "source": "fixture:premarket",
+  "closes": [
+    {"symbol": "NIFTY", "exchange": "NSE", "value": 25500.0, "session_date": "2026-11-05"},
+    {"symbol": "SENSEX", "exchange": "BSE", "value": 84000.0, "session_date": "2026-11-05"}
+  ],
+  "preopen": {
+    "symbol": "NIFTY",
+    "exchange": "NSE",
+    "value": 25580.0,
+    "as_of_ist": "2026-11-06T09:08:00+05:30",
+    "source": "fixture:preopen"
+  },
+  "flows_session_date": "2026-11-05",
+  "fii_cash_crore": -1200.5,
+  "dii_cash_crore": 900.2,
+  "india_vix": {"close": 12.4, "session_date": "2026-11-05"},
+  "announcements": [
+    {
+      "symbol": "RELIANCE",
+      "exchange": "NSE",
+      "headline": "Board meeting intimation",
+      "source": "fixture:nse-announcement",
+      "session_date": "2026-11-05"
+    }
+  ],
+  "gift_nifty": {
+    "value": 25610.0,
+    "as_of_ist": "2026-11-06T08:30:00+05:30",
+    "source": "fixture:gift-nifty"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "source": "fixture:morning",
+  "session_date": "2026-11-06",
+  "setup": "orb",
+  "surveillance": {
+    "symbol": "RELIANCE",
+    "exchange": "NSE",
+    "series": "EQ",
+    "session_date": "2026-11-06",
+    "source": "fixture:surveillance"
+  },
+  "scan": {
+    "source": "fixture:scan",
+    "session_date": "2026-11-06",
+    "min_delivery_pct": 50,
+    "names": [
+      {"symbol": "RELIANCE", "exchange": "NSE", "last": 114, "opening_range_high": 113, "opening_range_low": 111, "delivery_pct": 62}
+    ]
+  },
+  "setup_pack": {
+    "symbol": "RELIANCE",
+    "exchange": "NSE",
+    "series": "EQ",
+    "last": 114,
+    "opening_range_high": 113,
+    "opening_range_low": 111
+  },
+  "size": {"risk_inr": 1000, "lot_size": 1, "as_of": "2026-11-06"},
+  "gate": {
+    "min_r": 1.5,
+    "daily_loss_inr": 0,
+    "daily_loss_limit_inr": 5000,
+    "planned_trades": 0,
+    "max_planned_trades": 3,
+    "data_as_of_ist": "2026-11-06T09:20:00+05:30",
+    "now_ist": "2026-11-06T09:35:00+05:30",
+    "max_age_minutes": 30,
+    "costs_as_of": "2026-11-06"
+  }
+}

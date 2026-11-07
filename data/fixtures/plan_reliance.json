@@ -1,0 +1,23 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "series": "EQ",
+  "session_date": "2026-11-06",
+  "as_of_ist": "2026-11-06T09:20:00+05:30",
+  "source": "fixture:plan",
+  "horizon": "intraday_cash",
+  "side": "long",
+  "entry": 112,
+  "invalidation": 109,
+  "target": 118,
+  "surveillance": {
+    "clearance": "clear",
+    "source": "fixture:surveillance",
+    "session_date": "2026-11-06"
+  },
+  "levels": {
+    "items": [
+      {"ok": true, "field": "prev_high", "value": 114, "source": "fixture:levels"}
+    ]
+  }
+}
