@@ -6,6 +6,14 @@ The version line is the state of the skill pack. Phases that are not listed as s
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-07
+
+### Added
+
+- Book skills with no calculator: `mandate`, `thesis-memo`, `short-case`, `book-risk`, `pair-note`, and `ic-note`. The desk routes them with command `none`
+
+## [0.2.0] - 2026-11-07
+
 ### Added
 
 - Phase 2 skills and commands: `premarket`, `flows`, `breadth`, `rotation`, `options`, `levels`, and `desk`
@@ -26,7 +34,6 @@ The version line is the state of the skill pack. Phases that are not listed as s
 - NSE transaction charges from NSE/FA/73061 (27 February 2026) and the SEBI turnover fee sit beside STT. They are not inside the backtest net. Stamp duty and the BSE transaction rate stay blank
 - Futures and options plans stay incomplete without expiry and lot size. Options also need a strike and CE or PE
 - The risk gate can block a Muhurat session, a tight rupee circuit, an ex-date, a record date, a board meeting, or open planned risk at the daily limit. Those checks run only when the pack supplies the key
-- Book skills with no calculator: `mandate`, `thesis-memo`, `short-case`, `book-risk`, `pair-note`, and `ic-note`. The desk routes them with command `none`
 
 ### Still blank
 
